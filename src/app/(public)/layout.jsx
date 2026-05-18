@@ -1,5 +1,6 @@
 import { DM_Sans } from "next/font/google";
 import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -12,7 +13,8 @@ export default function PublicLayout({ children }) {
       className={`${dmSans.variable} min-h-screen overflow-x-hidden bg-background font-body text-on-background`}
     >
       <Navbar />
-      <main className="pt-24">{children}</main>
+      <main>{children}</main>
+      <Footer />
     </div>
   );
 }
