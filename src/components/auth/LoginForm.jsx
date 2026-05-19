@@ -3,7 +3,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
+import toast from "react-hot-toast";
+import { authClient } from "@/lib/auth-client";
 import {
   Button,
   InputGroup,
@@ -53,13 +56,59 @@ const slideInFromLeft = {
 };
 
 export default function LoginForm() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/";
+
   const [focusedField, setFocusedField] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   const iconColor = (field) =>
     focusedField === field ? "text-primary" : "text-[#907898]";
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get("email")?.toString().trim() ?? "";
+    const password = formData.get("password")?.toString() ?? "";
+
+    if (!email || !password) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    const { error } = await authClient.signIn.email({
+      email,
+      password,
+      callbackURL: callbackUrl,
+    });
+    setIsSubmitting(false);
+
+    if (error) {
+      toast.error("Invalid email or password");
+      return;
+    }
+
+    router.push(callbackUrl);
+    router.refresh();
+  };
+
+  const handleGoogleSignIn = async () => {
+    setIsGoogleLoading(true);
+    const { error } = await authClient.signIn.social({
+      provider: "google",
+      callbackURL: callbackUrl,
+    });
+
+    if (error) {
+      toast.error(
+        error.message?.includes("Provider not found")
+          ? "Google sign-in is not configured. Check GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in .env, then restart the dev server."
+          : "Could not sign in with Google. Please try again.",
+      );
+      setIsGoogleLoading(false);
+    }
   };
 
   return (
@@ -97,9 +146,11 @@ export default function LoginForm() {
                 />
               </InputGroup.Prefix>
               <InputGroup.Input
+                name="email"
                 type="email"
                 placeholder="hello@studynook.com"
                 className={inputClass}
+                autoComplete="email"
               />
             </InputGroup>
           </TextField>
@@ -112,17 +163,9 @@ export default function LoginForm() {
             onFocus={() => setFocusedField("password")}
             onBlur={() => setFocusedField(null)}
           >
-            <div className="mb-2 flex items-center justify-between px-2">
-              <Label className="text-sm font-bold text-on-surface-variant">
-                Password
-              </Label>
-              <Link
-                href="/forgot-password"
-                className="text-sm font-bold text-[#0096cc] hover:underline"
-              >
-                Forgot Password?
-              </Link>
-            </div>
+            <Label className="mb-2 ml-2 text-sm font-bold text-on-surface-variant">
+              Password
+            </Label>
             <InputGroup fullWidth className={inputGroupClass}>
               <InputGroup.Prefix className="pl-4">
                 <FontAwesomeIcon
@@ -131,9 +174,11 @@ export default function LoginForm() {
                 />
               </InputGroup.Prefix>
               <InputGroup.Input
+                name="password"
                 type="password"
                 placeholder="••••••••"
                 className={inputClass}
+                autoComplete="current-password"
               />
             </InputGroup>
           </TextField>
@@ -142,6 +187,7 @@ export default function LoginForm() {
             <Button
               type="submit"
               fullWidth
+              isDisabled={isSubmitting || isGoogleLoading}
               className="candy-shadow-primary h-auto rounded-full bg-primary py-4 text-base font-black text-on-primary transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:scale-[1.03] active:scale-[0.97]"
             >
               <span className="flex items-center justify-center gap-2">
@@ -162,6 +208,8 @@ export default function LoginForm() {
               type="button"
               fullWidth
               variant="secondary"
+              isDisabled={isSubmitting || isGoogleLoading}
+              onPress={handleGoogleSignIn}
               className="h-auto rounded-full border border-[#dcc8e0] bg-[#fbf2fb] py-4 text-base font-bold text-on-surface-variant transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:scale-[1.03] active:scale-[0.97]"
             >
               <span className="flex items-center justify-center gap-3">
@@ -178,7 +226,7 @@ export default function LoginForm() {
             href="/register"
             className="ml-1 font-black text-primary hover:underline"
           >
-            Sign up
+            Register
           </Link>
         </p>
       </motion.div>

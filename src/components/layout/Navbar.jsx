@@ -51,11 +51,6 @@ const itemVariants = {
   },
 };
 
-const overlayVariants = {
-  closed: { opacity: 0 },
-  open: { opacity: 1 },
-};
-
 function StudyNookLogo({ className = "size-6" }) {
   return (
     <svg
@@ -212,10 +207,9 @@ export default function Navbar() {
             className="fixed inset-0 top-[65px] z-40 bg-[#2e1a28]/30 backdrop-blur-[2px] lg:hidden"
             aria-label="Close menu"
             onClick={closeMenu}
-            initial="closed"
-            animate="open"
-            exit="closed"
-            variants={overlayVariants}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             transition={{ duration: 0.25, ease: "easeOut" }}
           />
         )}

@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button, InputGroup, Label, TextField } from "@heroui/react";
 import {
@@ -12,9 +13,11 @@ import {
   Eye,
   EyeOff,
   Lock,
-  Share2,
   User,
 } from "lucide-react";
+import toast from "react-hot-toast";
+import { authClient } from "@/lib/auth-client";
+import { validatePassword } from "@/lib/password";
 
 function GoogleIcon() {
   return (
@@ -64,11 +67,63 @@ function FieldIcon({ icon: Icon, field, focusedField }) {
 }
 
 export default function RegisterForm() {
+  const router = useRouter();
   const [focusedField, setFocusedField] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const name = formData.get("name")?.toString().trim() ?? "";
+    const email = formData.get("email")?.toString().trim() ?? "";
+    const image = formData.get("photoUrl")?.toString().trim() ?? "";
+    const password = formData.get("password")?.toString() ?? "";
+
+    const validationError = validatePassword(password);
+    if (validationError) {
+      setPasswordError(validationError);
+      return;
+    }
+
+    setPasswordError("");
+    setIsSubmitting(true);
+
+    const { error } = await authClient.signUp.email({
+      name,
+      email,
+      password,
+      image,
+    });
+
+    setIsSubmitting(false);
+
+    if (error) {
+      toast.error(error.message || "Could not create account. Please try again.");
+      return;
+    }
+
+    toast.success("Registration successful! Please login.");
+    router.push("/login");
+  };
+
+  const handleGoogleSignIn = async () => {
+    setIsGoogleLoading(true);
+    const { error } = await authClient.signIn.social({
+      provider: "google",
+      callbackURL: "/",
+    });
+
+    if (error) {
+      toast.error(
+        error.message?.includes("Provider not found")
+          ? "Google sign-in is not configured. Check GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in .env, then restart the dev server."
+          : "Could not sign in with Google. Please try again.",
+      );
+      setIsGoogleLoading(false);
+    }
   };
 
   return (
@@ -78,7 +133,7 @@ export default function RegisterForm() {
         {...slideInFromLeft}
       >
         <div
-          className="absolute -top-10 -left-10 h-40 w-40 rounded-full bg-[#ffd6ee]/30 blur-3xl"
+          className="absolute -top-10 -left-10 h-40 w-40 rounded-full bg-primary-container/30 blur-3xl"
           aria-hidden
         />
         <div
@@ -131,27 +186,29 @@ export default function RegisterForm() {
 
           <form className="space-y-5" onSubmit={handleSubmit}>
             <TextField
-              name="fullName"
+              name="name"
               isRequired
               fullWidth
-              onFocus={() => setFocusedField("fullName")}
+              onFocus={() => setFocusedField("name")}
               onBlur={() => setFocusedField(null)}
             >
               <Label className="mb-2 block px-2 text-sm font-bold text-[#4a3068]">
-                Full Name
+                Name
               </Label>
               <InputGroup fullWidth className={inputGroupClass}>
                 <InputGroup.Prefix className="pl-4">
                   <FieldIcon
                     icon={User}
-                    field="fullName"
+                    field="name"
                     focusedField={focusedField}
                   />
                 </InputGroup.Prefix>
                 <InputGroup.Input
+                  name="name"
                   type="text"
-                  placeholder="Enter your full name"
+                  placeholder="Enter your name"
                   className={inputClass}
+                  autoComplete="name"
                 />
               </InputGroup>
             </TextField>
@@ -176,9 +233,11 @@ export default function RegisterForm() {
                   />
                 </InputGroup.Prefix>
                 <InputGroup.Input
+                  name="email"
                   type="email"
                   placeholder="hello@studynook.com"
                   className={inputClass}
+                  autoComplete="email"
                 />
               </InputGroup>
             </TextField>
@@ -203,6 +262,7 @@ export default function RegisterForm() {
                   />
                 </InputGroup.Prefix>
                 <InputGroup.Input
+                  name="photoUrl"
                   type="url"
                   placeholder="https://example.com/photo.jpg"
                   className={inputClass}
@@ -229,9 +289,16 @@ export default function RegisterForm() {
                   />
                 </InputGroup.Prefix>
                 <InputGroup.Input
+                  name="password"
                   type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
                   className={`${inputClass} pr-12`}
+                  autoComplete="new-password"
+                  onChange={() => {
+                    if (passwordError) {
+                      setPasswordError("");
+                    }
+                  }}
                 />
                 <InputGroup.Suffix className="pr-4">
                   <button
@@ -250,17 +317,45 @@ export default function RegisterForm() {
                   </button>
                 </InputGroup.Suffix>
               </InputGroup>
+              {passwordError ? (
+                <p className="mt-2 px-2 text-sm font-medium text-[#c41e5a]">
+                  {passwordError}
+                </p>
+              ) : null}
             </TextField>
 
-            <div className="pt-2">
+            <div className="space-y-4 pt-2">
               <Button
                 type="submit"
                 fullWidth
+                isDisabled={isSubmitting || isGoogleLoading}
                 className="h-auto rounded-full bg-primary py-4 text-lg font-black text-on-primary shadow-[0_4px_16px_rgba(224,64,160,0.2)] transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:scale-[1.03] hover:shadow-[0_8px_24px_rgba(224,64,160,0.3)] active:scale-[0.97]"
               >
                 <span className="flex items-center justify-center gap-2">
-                  Register Now
+                  Register
                   <ArrowRight className="h-5 w-5" strokeWidth={2.5} />
+                </span>
+              </Button>
+
+              <div className="relative flex items-center py-2">
+                <div className="grow border-t border-[#dcc8e0]" />
+                <span className="mx-4 shrink-0 text-xs font-bold uppercase tracking-widest text-[#907898]">
+                  or
+                </span>
+                <div className="grow border-t border-[#dcc8e0]" />
+              </div>
+
+              <Button
+                type="button"
+                fullWidth
+                variant="secondary"
+                isDisabled={isSubmitting || isGoogleLoading}
+                onPress={handleGoogleSignIn}
+                className="h-auto rounded-full border border-[#dcc8e0] bg-[#fbf2fb] py-4 text-base font-bold text-on-surface-variant transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:scale-[1.03] active:scale-[0.97]"
+              >
+                <span className="flex items-center justify-center gap-3">
+                  <GoogleIcon />
+                  Continue with Google
                 </span>
               </Button>
             </div>
@@ -272,34 +367,9 @@ export default function RegisterForm() {
               href="/login"
               className="font-bold text-primary decoration-2 underline-offset-4 hover:underline"
             >
-              Log in
+              Login
             </Link>
           </p>
-
-          <div className="mt-8 flex items-center gap-4">
-            <div className="h-px grow bg-[#dcc8e0]" />
-            <span className="text-xs font-bold tracking-widest text-[#907898] uppercase">
-              Or join with
-            </span>
-            <div className="h-px grow bg-[#dcc8e0]" />
-          </div>
-
-          <div className="mt-6 flex justify-center gap-4">
-            <button
-              type="button"
-              className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-surface-variant transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:scale-[1.03] hover:border-[#7c52aa] hover:bg-[#eedcff] active:scale-[0.97]"
-              aria-label="Continue with Google"
-            >
-              <GoogleIcon />
-            </button>
-            <button
-              type="button"
-              className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-surface-variant text-[#907898] transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:scale-[1.03] hover:border-[#7c52aa] hover:bg-[#eedcff] hover:text-[#7c52aa] active:scale-[0.97]"
-              aria-label="Join with network"
-            >
-              <Share2 className="h-5 w-5" strokeWidth={2} />
-            </button>
-          </div>
         </div>
       </motion.div>
 
