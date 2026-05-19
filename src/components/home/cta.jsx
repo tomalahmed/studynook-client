@@ -21,7 +21,7 @@ export default function CtaSection() {
           Start earning today and build a better study community.
         </p>
         <Link
-          href="/register"
+          href="/add-room"
           className="relative z-10 inline-block rounded-full bg-white px-12 py-4 text-xl font-bold text-primary transition-all duration-200 hover:scale-105 active:scale-95"
         >
           List Your Room

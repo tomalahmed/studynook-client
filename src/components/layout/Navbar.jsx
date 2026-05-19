@@ -4,10 +4,18 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import ProfileMenu from "@/components/layout/ProfileMenu";
 
-const navLinks = [
+const baseNavLinks = [
   { href: "/", label: "Home" },
   { href: "/rooms", label: "Rooms" },
+];
+
+const authenticatedNavLinks = [
+  { href: "/add-room", label: "Add Room" },
+  { href: "/my-listings", label: "My Listings" },
+  { href: "/my-bookings", label: "My Bookings" },
 ];
 
 const panelVariants = {
@@ -127,7 +135,12 @@ function NavLinkItem({ href, label, isActive, onNavigate }) {
 
 export default function Navbar() {
   const pathname = usePathname();
+  const { user, isAuthenticated, isPending } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
+
+  const navLinks = isAuthenticated
+    ? [...baseNavLinks, ...authenticatedNavLinks]
+    : baseNavLinks;
 
   const isActive = (href) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
@@ -158,7 +171,10 @@ export default function Navbar() {
         </Link>
 
         <div className="flex items-center gap-3 sm:gap-4">
-          <nav className="hidden items-center gap-9 lg:flex" aria-label="Main">
+          <nav
+            className="hidden items-center gap-6 xl:gap-9 lg:flex"
+            aria-label="Main"
+          >
             {navLinks.map(({ href, label }) => (
               <NavLinkItem
                 key={href}
@@ -170,20 +186,28 @@ export default function Navbar() {
             ))}
           </nav>
 
-          <div className="hidden items-center gap-2 sm:flex sm:gap-3">
-            <Link
-              href="/login"
-              className="flex h-10 min-w-[84px] items-center justify-center overflow-hidden rounded-full bg-primary px-6 text-sm font-bold leading-normal tracking-[0.015em] text-on-primary shadow-[0_4px_16px_rgba(224,64,160,0.2)] transition-transform duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:scale-[1.03] active:scale-95"
-            >
-              <span className="truncate">Log In</span>
-            </Link>
-            <Link
-              href="/register"
-              className="flex h-10 min-w-[84px] items-center justify-center overflow-hidden rounded-full border-2 border-[#d4399b] bg-white px-6 text-sm font-bold leading-normal tracking-[0.015em] text-on-surface transition-transform duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:bg-surface-variant hover:scale-[1.03] active:scale-95"
-            >
-              <span className="truncate">Register</span>
-            </Link>
-          </div>
+          {!isPending && isAuthenticated && user ? (
+            <div className="hidden lg:block">
+              <ProfileMenu user={user} onNavigate={closeMenu} />
+            </div>
+          ) : null}
+
+          {!isPending && !isAuthenticated ? (
+            <div className="hidden items-center gap-2 sm:flex sm:gap-3">
+              <Link
+                href="/login"
+                className="flex h-10 min-w-[84px] items-center justify-center overflow-hidden rounded-full bg-primary px-6 text-sm font-bold leading-normal tracking-[0.015em] text-on-primary shadow-[0_4px_16px_rgba(224,64,160,0.2)] transition-transform duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:scale-[1.03] active:scale-95"
+              >
+                <span className="truncate">Log In</span>
+              </Link>
+              <Link
+                href="/register"
+                className="flex h-10 min-w-[84px] items-center justify-center overflow-hidden rounded-full border-2 border-[#dcc8e0] bg-white px-6 text-sm font-bold leading-normal tracking-[0.015em] text-on-surface transition-transform duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:bg-surface-variant hover:scale-[1.03] active:scale-95"
+              >
+                <span className="truncate">Register</span>
+              </Link>
+            </div>
+          ) : null}
 
           <motion.button
             type="button"
@@ -239,25 +263,36 @@ export default function Navbar() {
             </motion.div>
           ))}
 
-          <motion.div
-            className="mt-3 flex flex-col gap-2 border-t border-[#dcc8e0] pt-4 sm:hidden"
-            variants={itemVariants}
-          >
-            <Link
-              href="/login"
-              onClick={closeMenu}
-              className="flex h-11 items-center justify-center rounded-full bg-primary px-6 text-sm font-bold text-on-primary shadow-[0_4px_16px_rgba(224,64,160,0.2)] transition-transform active:scale-95"
+          {!isPending && isAuthenticated && user ? (
+            <motion.div
+              className="mt-3 border-t border-[#dcc8e0] pt-4"
+              variants={itemVariants}
             >
-              Log In
-            </Link>
-            <Link
-              href="/register"
-              onClick={closeMenu}
-              className="flex h-11 items-center justify-center rounded-full border-2 border-[#dcc8e0] bg-white px-6 text-sm font-bold text-on-surface transition-transform active:scale-95"
+              <ProfileMenu user={user} onNavigate={closeMenu} />
+            </motion.div>
+          ) : null}
+
+          {!isPending && !isAuthenticated ? (
+            <motion.div
+              className="mt-3 flex flex-col gap-2 border-t border-[#dcc8e0] pt-4 sm:hidden"
+              variants={itemVariants}
             >
-              Register
-            </Link>
-          </motion.div>
+              <Link
+                href="/login"
+                onClick={closeMenu}
+                className="flex h-11 items-center justify-center rounded-full bg-primary px-6 text-sm font-bold text-on-primary shadow-[0_4px_16px_rgba(224,64,160,0.2)] transition-transform active:scale-95"
+              >
+                Log In
+              </Link>
+              <Link
+                href="/register"
+                onClick={closeMenu}
+                className="flex h-11 items-center justify-center rounded-full border-2 border-[#dcc8e0] bg-white px-6 text-sm font-bold text-on-surface transition-transform active:scale-95"
+              >
+                Register
+              </Link>
+            </motion.div>
+          ) : null}
         </motion.div>
       </motion.nav>
     </header>
