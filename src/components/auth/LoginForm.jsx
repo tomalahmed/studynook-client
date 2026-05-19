@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { useState } from "react";
 import {
   Button,
@@ -45,6 +46,12 @@ const inputGroupClass =
 const inputClass =
   "rounded-full bg-transparent py-4 text-on-surface placeholder:text-[#907898]";
 
+const slideInFromLeft = {
+  initial: { opacity: 0, x: -24 },
+  animate: { opacity: 1, x: 0 },
+  transition: { duration: 0.6, ease: "easeOut" },
+};
+
 export default function LoginForm() {
   const [focusedField, setFocusedField] = useState(null);
 
@@ -57,7 +64,10 @@ export default function LoginForm() {
 
   return (
     <div className="mx-auto flex w-full max-w-6xl min-h-[min(700px,calc(100vh-12rem))] flex-col overflow-hidden rounded-xl bg-white shadow-[0_12px_40px_rgba(124,82,170,0.1)] md:flex-row">
-        <div className="flex w-full flex-col justify-center p-8 md:w-1/2 md:p-16">
+        <motion.div
+          className="flex w-full flex-col justify-center p-8 md:w-1/2 md:p-16"
+          {...slideInFromLeft}
+        >
         <div className="mb-8 md:mb-10">
           <h1 className="mb-2 text-3xl font-black tracking-tight text-on-surface sm:text-4xl">
             Welcome Back!
@@ -171,9 +181,14 @@ export default function LoginForm() {
             Sign up
           </Link>
         </p>
-      </div>
+      </motion.div>
 
-      <div className="relative hidden w-1/2 overflow-hidden bg-[#eedcff] md:flex md:items-center md:justify-center md:p-12">
+      <motion.div
+        className="relative hidden w-1/2 overflow-hidden bg-[#eedcff] md:flex md:items-center md:justify-center md:p-12"
+        initial={{ opacity: 0, x: 24 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.6, delay: 0.15, ease: "easeOut" }}
+      >
         <div
           className="absolute -top-20 -right-20 h-80 w-80 rounded-full bg-primary/10 blur-3xl"
           aria-hidden
@@ -184,7 +199,18 @@ export default function LoginForm() {
         />
 
         <div className="relative z-10 flex h-full w-full flex-col items-center justify-center">
-          <div className="w-full max-w-md rotate-2 rounded-xl border border-white/30 bg-white/20 p-4 shadow-xl backdrop-blur-sm transition-transform duration-700 hover:rotate-0">
+          <motion.div
+            className="w-full max-w-md rotate-2 rounded-xl border border-white/30 bg-white/20 p-4 shadow-xl backdrop-blur-sm"
+            whileHover={{
+              rotate: 0,
+              scale: 1.04,
+              y: -8,
+            }}
+            transition={{
+              duration: 0.35,
+              ease: [0.34, 1.56, 0.64, 1],
+            }}
+          >
             <div className="relative aspect-square w-full overflow-hidden rounded-lg shadow-inner">
               <Image
                 src="/images/login.png"
@@ -195,19 +221,27 @@ export default function LoginForm() {
                 className="object-contain object-center"
               />
             </div>
-          </div>
+          </motion.div>
 
           <div className="mt-10 space-y-4 text-center">
-            <span className="inline-block rounded-full bg-[#ffd6ee] px-6 py-2 text-sm font-black uppercase tracking-widest text-[#a02070]">
+            <motion.span
+              className="inline-block rounded-full bg-[#ffd6ee] px-6 py-2 text-sm font-black uppercase tracking-widest text-[#a02070]"
+              animate={{ y: [0, -12, 0] }}
+              transition={{
+                duration: 1.8,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            >
               Productive Vibes
-            </span>
+            </motion.span>
             <h2 className="text-2xl font-black leading-tight text-[#2e2040] lg:text-3xl">
               Find your perfect <br />
               <span className="italic text-primary">Learning Space.</span>
             </h2>
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

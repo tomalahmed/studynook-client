@@ -1,5 +1,8 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { motion } from "framer-motion";
 
 function RocketIcon() {
   return (
@@ -31,7 +34,12 @@ export default function HeroBanner() {
   return (
     <section className="relative overflow-hidden px-4 py-12 sm:px-6 sm:py-16 md:py-28">
       <div className="mx-auto flex max-w-7xl flex-col items-center gap-10 md:flex-row md:items-center md:gap-12 lg:gap-16">
-        <div className="z-10 flex-1 text-center md:text-left">
+        <motion.div
+          className="z-10 flex-1 text-center md:text-left"
+          initial={{ opacity: 0, x: -24 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+        >
           <span className="mb-4 inline-block rounded-full bg-[#ffd6ee] px-4 py-1.5 text-xs font-bold text-[#3d0028] sm:mb-6 sm:text-sm">
             Sweeten Your Study Session
           </span>
@@ -61,14 +69,34 @@ export default function HeroBanner() {
               Learn More
             </Link>
           </div>
-        </div>
+        </motion.div>
 
         <div className="relative w-full max-w-md flex-1 pb-6 sm:max-w-lg md:max-w-xl md:pb-8">
-          <div
+          <motion.div
             className="absolute inset-0 scale-95 rotate-3 rounded-xl bg-[#eedcff] opacity-20"
             aria-hidden
+            animate={{
+              rotate: [3, 6, 3],
+              scale: [0.95, 0.98, 0.95],
+            }}
+            transition={{
+              duration: 5,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
           />
-          <div className="relative z-10 -rotate-2 overflow-hidden rounded-xl bg-[#fbf2fb] shadow-[0_8px_24px_rgba(124,82,170,0.2)]">
+
+          <motion.div
+            className="group relative z-10 -rotate-2 overflow-hidden rounded-xl bg-[#fbf2fb] shadow-[0_8px_24px_rgba(124,82,170,0.2)]"
+            initial={{ opacity: 0, y: 28 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.65, delay: 0.15, ease: "easeOut" }}
+            whileHover={{
+              rotate: 0,
+              scale: 1.03,
+              y: -8,
+            }}
+          >
             <Image
               src="/images/Banner.png"
               alt="StudyNook — modern study room with pastel pink and purple accents"
@@ -76,11 +104,32 @@ export default function HeroBanner() {
               height={800}
               priority
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 45vw, 520px"
-              className="h-auto w-full object-contain object-center"
+              className="h-auto w-full object-contain object-center transition-transform duration-500 group-hover:scale-[1.02]"
             />
-          </div>
+            <motion.div
+              className="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-tr from-primary/10 via-transparent to-[#7c52aa]/10"
+              initial={{ opacity: 0.4 }}
+              whileHover={{ opacity: 0.85 }}
+              transition={{ duration: 0.35 }}
+              aria-hidden
+            />
+          </motion.div>
 
-          <div className="absolute -bottom-4 left-2 z-20 rounded-lg bg-[#40c0ee] p-4 shadow-[0_8px_24px_rgba(0,150,204,0.2)] sm:-bottom-6 sm:left-0 sm:p-5 md:-left-4 lg:-bottom-6 lg:-left-6 lg:p-6">
+          <motion.div
+            className="absolute -bottom-4 left-2 z-20 rounded-lg bg-[#40c0ee] p-4 shadow-[0_8px_24px_rgba(0,150,204,0.2)] sm:-bottom-6 sm:left-0 sm:p-5 md:-left-4 lg:-bottom-6 lg:-left-6 lg:p-6"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: [0, -10, 0] }}
+            transition={{
+              opacity: { duration: 0.5, delay: 0.4 },
+              y: {
+                duration: 2.5,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: 0.4,
+              },
+            }}
+            whileHover={{ scale: 1.05, y: -14 }}
+          >
             <div className="flex items-center gap-3 sm:gap-4">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white sm:h-12 sm:w-12">
                 <StarIcon />
@@ -92,7 +141,7 @@ export default function HeroBanner() {
                 <p className="text-xs opacity-80 sm:text-sm">Top Rated Rooms</p>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>
