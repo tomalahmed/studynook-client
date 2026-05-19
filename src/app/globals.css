@@ -16,6 +16,14 @@
   --color-on-surface-variant: #604868;
   --color-on-background: #2e1a28;
   --color-primary-fixed-dim: #f0a0cc;
+  --color-primary-container: #ffd6ee;
+  --color-on-primary-container: #600040;
+  --color-secondary: #7c52aa;
+  --color-secondary-container: #eedcff;
+  --color-on-secondary-container: #3d1a5c;
+  --color-tertiary: #0096cc;
+  --color-tertiary-container: #d6f4fc;
+  --color-on-tertiary-container: #00334d;
   --color-surface-variant: #f2e8f2;
   --font-sans: var(--font-dm-sans), "DM Sans", sans-serif;
   --font-body: var(--font-dm-sans), "DM Sans", sans-serif;
@@ -30,4 +38,12 @@ body {
 
 .candy-shadow-primary {
   box-shadow: 0 8px 24px rgba(224, 64, 160, 0.2);
+}
+
+.candy-shadow-secondary {
+  box-shadow: 0 8px 24px rgba(124, 82, 170, 0.2);
+}
+
+.candy-shadow-tertiary {
+  box-shadow: 0 8px 24px rgba(0, 150, 204, 0.2);
 }
