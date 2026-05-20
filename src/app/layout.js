@@ -1,4 +1,5 @@
 import { Geist, Geist_Mono } from "next/font/google";
+import SessionTokenSync from "@/components/auth/SessionTokenSync";
 import ToasterProvider from "@/components/providers/ToasterProvider";
 import "./globals.css";
 
@@ -24,6 +25,7 @@ export default function RootLayout({ children }) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        <SessionTokenSync />
         {children}
         <ToasterProvider />
       </body>

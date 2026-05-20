@@ -39,6 +39,10 @@ export default function ProfileMenu({ user, onNavigate }) {
 
   const handleLogout = async () => {
     setIsSigningOut(true);
+    await fetch("/api/auth/clear-token", {
+      method: "POST",
+      credentials: "include",
+    });
     await authClient.signOut();
     setIsSigningOut(false);
     setIsOpen(false);

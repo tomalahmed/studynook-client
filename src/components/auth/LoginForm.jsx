@@ -90,6 +90,16 @@ export default function LoginForm() {
       return;
     }
 
+    const tokenRes = await fetch("/api/auth/set-token", {
+      method: "POST",
+      credentials: "include",
+    });
+
+    if (!tokenRes.ok) {
+      toast.error("Signed in, but could not start your session. Please try again.");
+      return;
+    }
+
     router.push(callbackUrl);
     router.refresh();
   };

@@ -1,19 +1,19 @@
 import { NextResponse } from "next/server";
-import { getSessionCookie } from "better-auth/cookies";
+import { verifyAuth } from "@/lib/auth-middleware";
 
 const authRoutes = ["/login", "/register"];
 const privateRoutes = ["/add-room", "/my-listings", "/my-bookings"];
 
-export function middleware(request) {
+export async function middleware(request) {
   const { pathname } = request.nextUrl;
-  const sessionCookie = getSessionCookie(request);
+  const user = await verifyAuth(request);
 
-  if (sessionCookie && authRoutes.some((route) => pathname.startsWith(route))) {
+  if (user && authRoutes.some((route) => pathname.startsWith(route))) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
   if (
-    !sessionCookie &&
+    !user &&
     privateRoutes.some((route) => pathname.startsWith(route))
   ) {
     const loginUrl = new URL("/login", request.url);
