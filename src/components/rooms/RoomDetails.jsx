@@ -4,22 +4,100 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import {
+  ChevronRight,
+  MapPin,
+  Sparkles,
+  Star,
+} from "lucide-react";
 import toast from "react-hot-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { roomsApi } from "@/lib/api";
-import {
-  ASSIGNMENT_AMENITIES,
-  formatCapacityLabel,
-  formatFloorLabel,
-} from "@/lib/roomConstants";
+import { formatFloorLabel } from "@/lib/roomConstants";
+import { buildPremiumPerks, getReviewDisplay } from "@/lib/roomPerks";
 import { isRemoteImage, resolveRoomImage } from "@/lib/images";
-import BookingModal from "@/components/rooms/BookingModal";
+import EditRoomPanel from "@/components/rooms/EditRoomPanel";
+import RoomBookingSidebar from "@/components/rooms/RoomBookingSidebar";
+
+function Breadcrumbs({ roomName }) {
+  return (
+    <nav
+      aria-label="Breadcrumb"
+      className="mb-6 flex flex-wrap items-center gap-1 text-sm font-bold text-on-surface-variant"
+    >
+      <Link href="/" className="transition-colors hover:text-primary">
+        Home
+      </Link>
+      <ChevronRight className="h-4 w-4 shrink-0 opacity-50" strokeWidth={2.5} />
+      <Link href="/rooms" className="transition-colors hover:text-primary">
+        Rooms
+      </Link>
+      <ChevronRight className="h-4 w-4 shrink-0 opacity-50" strokeWidth={2.5} />
+      <span className="text-primary">{roomName}</span>
+    </nav>
+  );
+}
+
+function AboutDescription({ room }) {
+  const name = room.name;
+  const text = room.description?.trim();
+
+  if (text) {
+    const parts = text.split(/\n\n+/).filter(Boolean);
+    if (parts.length >= 2) {
+      return parts.map((paragraph, i) => (
+        <p
+          key={i}
+          className="text-base leading-relaxed text-on-surface-variant"
+        >
+          {paragraph.split(name).map((segment, j, arr) => (
+            <span key={j}>
+              {segment}
+              {j < arr.length - 1 ? (
+                <strong className="font-bold text-primary">{name}</strong>
+              ) : null}
+            </span>
+          ))}
+        </p>
+      ));
+    }
+
+    return (
+      <>
+        <p className="text-base leading-relaxed text-on-surface-variant">
+          {text}
+        </p>
+        <p className="text-base leading-relaxed text-on-surface-variant">
+          Whether you&apos;re preparing for finals or hosting a focused group
+          session,{" "}
+          <strong className="font-bold text-primary">{name}</strong> offers the
+          calm and comfort you need to stay productive.
+        </p>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <p className="text-base leading-relaxed text-on-surface-variant">
+        Experience the serene atmosphere at{" "}
+        <strong className="font-bold text-primary">{name}</strong>. Perfect for
+        students who need a quiet corner to focus on their studies without
+        distractions.
+      </p>
+      <p className="text-base leading-relaxed text-on-surface-variant">
+        With its comfortable seating and thoughtfully chosen amenities, this
+        nook is designed to help you stay in the zone from the first page to
+        the last.
+      </p>
+    </>
+  );
+}
 
 export default function RoomDetails({ room: initialRoom }) {
   const router = useRouter();
   const { user, isAuthenticated, isPending } = useAuth();
   const [room, setRoom] = useState(initialRoom);
-  const [bookingOpen, setBookingOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -28,15 +106,9 @@ export default function RoomDetails({ room: initialRoom }) {
     isAuthenticated && user?.id && room.owner?.id === String(user.id);
 
   const imageSrc = resolveRoomImage(room.image);
-
-  const handleBookNow = () => {
-    if (isPending) return;
-    if (!isAuthenticated) {
-      router.push(`/login?callbackUrl=/rooms/${room.id}`);
-      return;
-    }
-    setBookingOpen(true);
-  };
+  const location = `${room.libraryBranch || "Central Library"}, ${formatFloorLabel(room.floor)}`;
+  const perks = buildPremiumPerks(room);
+  const review = getReviewDisplay(room.bookingCount);
 
   const handleDelete = async () => {
     setSaving(true);
@@ -52,232 +124,159 @@ export default function RoomDetails({ room: initialRoom }) {
     }
   };
 
-  const handleEditSubmit = async (e) => {
-    e.preventDefault();
-    const form = new FormData(e.currentTarget);
-    const amenities = ASSIGNMENT_AMENITIES.filter(
-      (a) => form.get(`amenity-${a}`) === "on",
-    );
-
-    setSaving(true);
-    try {
-      const data = await roomsApi.update(room.id, {
-        name: form.get("name"),
-        description: form.get("description"),
-        image: form.get("image"),
-        floor: form.get("floor"),
-        capacity: Number(form.get("capacity")),
-        hourlyRate: Number(form.get("hourlyRate")),
-        amenities,
-      });
-      setRoom(data.room);
-      toast.success("Room updated successfully");
-      setEditOpen(false);
-    } catch (err) {
-      toast.error(err.message || "Could not update room.");
-    } finally {
-      setSaving(false);
-    }
-  };
-
   return (
-    <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-16">
-      <Link
-        href="/rooms"
-        className="mb-6 inline-flex text-sm font-bold text-secondary hover:text-primary"
-      >
-        ← Back to Rooms
-      </Link>
+    <div className="mx-auto w-full max-w-7xl px-6 py-8 md:py-12">
+      <Breadcrumbs roomName={room.name} />
 
-      <article className="overflow-hidden rounded-xl border-8 border-white bg-white candy-shadow-secondary">
-        <div className="relative aspect-video w-full bg-surface-variant">
-          <Image
-            src={imageSrc}
-            alt={room.name}
-            fill
-            priority
-            sizes="(max-width: 1024px) 100vw, 960px"
-            className="object-cover"
-            unoptimized={isRemoteImage(imageSrc)}
-          />
-          <div className="absolute top-4 right-4 rounded-full bg-primary px-4 py-1 text-sm font-bold text-on-primary shadow-lg">
-            ${Number(room.hourlyRate).toFixed(2)}/hr
+      <section className="relative mb-10 min-h-[280px] overflow-hidden rounded-3xl md:min-h-[360px]">
+        <Image
+          src={imageSrc}
+          alt={room.name}
+          fill
+          priority
+          sizes="(max-width: 1280px) 100vw, 1280px"
+          className="object-cover"
+          unoptimized={isRemoteImage(imageSrc)}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-black/10" />
+        <div className="absolute right-0 bottom-0 left-0 p-6 md:p-10">
+          <div className="mb-4 flex flex-wrap gap-2">
+            <span className="rounded-full bg-primary px-4 py-1.5 text-xs font-black tracking-wide text-on-primary uppercase candy-shadow-primary">
+              Available Now
+            </span>
+            <span className="flex items-center gap-1.5 rounded-full bg-white/20 px-4 py-1.5 text-xs font-bold text-white backdrop-blur-md">
+              {review.rating ? (
+                <>
+                  <Star
+                    className="h-3.5 w-3.5 fill-white text-white"
+                    strokeWidth={0}
+                  />
+                  {review.rating} ({review.label})
+                </>
+              ) : (
+                review.label
+              )}
+            </span>
           </div>
-        </div>
-
-        <div className="p-8 md:p-10">
-          <div className="mb-4 flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <h1 className="text-3xl font-black text-on-surface md:text-4xl">
-                {room.name}
-              </h1>
-              <p className="mt-2 text-on-surface-variant">
-                {formatFloorLabel(room.floor)} · {formatCapacityLabel(room.capacity)}
-              </p>
-              <p className="mt-1 text-sm font-bold text-secondary">
-                {room.bookingCount ?? 0} bookings
-              </p>
-            </div>
-          </div>
-
-          <p className="mb-6 text-lg leading-relaxed text-on-surface-variant">
-            {room.description}
+          <h1 className="mb-2 text-3xl font-black tracking-tight text-white md:text-5xl">
+            {room.name}
+          </h1>
+          <p className="flex items-center gap-2 text-sm font-medium text-white/90 md:text-base">
+            <MapPin className="h-4 w-4 shrink-0" strokeWidth={2.5} />
+            {location}
           </p>
-
-          <div className="mb-8 flex flex-wrap gap-2">
-            {(room.amenities || []).map((amenity) => (
-              <span
-                key={amenity}
-                className="rounded-full bg-[#c8eaff] px-3 py-1 text-xs font-bold text-tertiary"
-              >
-                {amenity}
-              </span>
-            ))}
-          </div>
-
-          <div className="flex flex-wrap gap-3">
-            <button
-              type="button"
-              onClick={handleBookNow}
-              disabled={isPending}
-              className="rounded-full bg-primary px-12 py-4 text-lg font-black text-on-primary candy-shadow-primary transition-all hover:scale-[1.03] disabled:opacity-70"
-            >
-              {isAuthenticated ? "Book Now" : "Login to Book"}
-            </button>
-            {isOwner ? (
-              <>
-                <button
-                  type="button"
-                  onClick={() => setEditOpen(true)}
-                  className="rounded-full border-2 border-primary px-8 py-4 font-bold text-primary"
-                >
-                  Edit
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setDeleteOpen(true)}
-                  className="rounded-full border-2 border-red-400 px-8 py-4 font-bold text-red-600"
-                >
-                  Delete
-                </button>
-              </>
-            ) : null}
-          </div>
         </div>
-      </article>
+      </section>
 
-      <BookingModal
-        room={room}
-        open={bookingOpen}
-        onClose={() => setBookingOpen(false)}
-        onSuccess={() => router.refresh()}
-      />
-
-      {editOpen ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <form
-            onSubmit={handleEditSubmit}
-            className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl bg-white p-6"
-          >
-            <h2 className="mb-4 text-xl font-black">Edit room</h2>
-            <div className="space-y-3">
-              <input
-                name="name"
-                defaultValue={room.name}
-                required
-                className="w-full rounded-full bg-surface-variant px-4 py-2"
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3 lg:gap-10">
+        <div className="space-y-10 lg:col-span-2">
+          <article className="rounded-2xl bg-surface p-6 candy-shadow-secondary md:p-8">
+            <h2 className="mb-6 flex items-center gap-2 text-xl font-black text-on-surface md:text-2xl">
+              <Sparkles
+                className="h-6 w-6 text-primary"
+                strokeWidth={2.25}
+                aria-hidden
               />
-              <textarea
-                name="description"
-                defaultValue={room.description}
-                required
-                rows={3}
-                className="w-full rounded-2xl bg-surface-variant px-4 py-2"
-              />
-              <input
-                name="image"
-                defaultValue={room.image}
-                required
-                placeholder="Image URL"
-                className="w-full rounded-full bg-surface-variant px-4 py-2"
-              />
-              <input
-                name="floor"
-                defaultValue={room.floor}
-                required
-                className="w-full rounded-full bg-surface-variant px-4 py-2"
-              />
-              <input
-                name="capacity"
-                type="number"
-                min={1}
-                defaultValue={room.capacity}
-                required
-                className="w-full rounded-full bg-surface-variant px-4 py-2"
-              />
-              <input
-                name="hourlyRate"
-                type="number"
-                min={0}
-                step={0.5}
-                defaultValue={room.hourlyRate}
-                required
-                className="w-full rounded-full bg-surface-variant px-4 py-2"
-              />
-              <div className="flex flex-wrap gap-2">
-                {ASSIGNMENT_AMENITIES.map((a) => (
-                  <label key={a} className="flex items-center gap-1 text-sm">
-                    <input
-                      type="checkbox"
-                      name={`amenity-${a}`}
-                      defaultChecked={room.amenities?.includes(a)}
-                    />
-                    {a}
-                  </label>
-                ))}
-              </div>
+              About this space
+            </h2>
+            <div className="space-y-4">
+              <AboutDescription room={room} />
             </div>
-            <div className="mt-4 flex gap-2">
+          </article>
+
+          <section>
+            <h2 className="mb-6 text-xl font-black text-on-surface md:text-2xl">
+              Premium Perks
+            </h2>
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+              {perks.map((perk) => (
+                <div
+                  key={perk.label}
+                  className="flex flex-col items-center justify-center rounded-2xl bg-primary-container/60 px-4 py-6 text-center transition-colors hover:bg-primary-container"
+                >
+                  <perk.Icon
+                    className="mb-3 h-8 w-8 text-secondary"
+                    strokeWidth={1.75}
+                    aria-hidden
+                  />
+                  <span className="text-sm font-bold text-on-surface">
+                    {perk.label}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {isOwner ? (
+            <div className="flex flex-wrap gap-3">
               <button
                 type="button"
-                onClick={() => setEditOpen(false)}
-                className="flex-1 rounded-full border py-2 font-bold"
+                onClick={() => setEditOpen(true)}
+                className="rounded-full border-2 border-primary px-8 py-3 font-bold text-primary transition-colors hover:bg-primary-container"
               >
-                Cancel
+                Edit listing
               </button>
               <button
-                type="submit"
-                disabled={saving}
-                className="flex-1 rounded-full bg-primary py-2 font-black text-on-primary"
+                type="button"
+                onClick={() => setDeleteOpen(true)}
+                className="rounded-full border-2 border-red-400 px-8 py-3 font-bold text-red-600 transition-colors hover:bg-red-50"
               >
-                Save
+                Delete listing
               </button>
             </div>
-          </form>
+          ) : null}
         </div>
-      ) : null}
+
+        <RoomBookingSidebar
+          room={room}
+          isAuthenticated={isAuthenticated}
+          isPending={isPending}
+          onSuccess={() => router.refresh()}
+        />
+      </div>
+
+      <EditRoomPanel
+        room={room}
+        open={editOpen}
+        onClose={() => setEditOpen(false)}
+        onSaved={(updated) => {
+          setRoom(updated);
+          router.refresh();
+        }}
+      />
 
       {deleteOpen ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-sm rounded-xl bg-white p-6">
-            <p className="mb-4 font-medium text-on-surface">
-              Delete this room permanently?
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-[2px]"
+          role="alertdialog"
+          aria-modal="true"
+          aria-labelledby="delete-room-title"
+        >
+          <div className="w-full max-w-md rounded-2xl bg-surface p-6 candy-shadow-secondary md:p-8">
+            <h3 id="delete-room-title" className="mb-2 text-xl font-black text-on-surface">
+              Delete listing?
+            </h3>
+            <p className="mb-6 text-sm leading-relaxed text-on-surface-variant">
+              <strong className="text-on-surface">{room.name}</strong> will be
+              removed permanently, including any booking history tied to this
+              room.
             </p>
-            <div className="flex gap-2">
+            <div className="flex gap-3">
               <button
                 type="button"
                 onClick={() => setDeleteOpen(false)}
-                className="flex-1 rounded-full border py-2 font-bold"
+                disabled={saving}
+                className="flex-1 rounded-full border-2 border-[#dcc8e0] py-3 text-sm font-bold text-on-surface transition-colors hover:bg-surface-variant disabled:opacity-50"
               >
-                Cancel
+                Keep listing
               </button>
               <button
                 type="button"
                 onClick={handleDelete}
                 disabled={saving}
-                className="flex-1 rounded-full bg-red-600 py-2 font-black text-white"
+                className="flex-1 rounded-full bg-red-600 py-3 text-sm font-black text-white transition-colors hover:bg-red-700 disabled:opacity-70"
               >
-                Delete
+                {saving ? "Deleting…" : "Delete"}
               </button>
             </div>
           </div>

@@ -110,3 +110,26 @@ export function amenityChips(amenities = [], maxVisible = 3) {
   const extra = list.length - visible.length;
   return { visible, extra };
 }
+
+export function floorToInputValue(floor) {
+  const match = String(floor ?? "").match(/\d+/);
+  return match ? match[0] : "";
+}
+
+export function getRoomTypeId(room) {
+  if (room?.roomType && ROOM_TYPES.some((t) => t.id === room.roomType)) {
+    return room.roomType;
+  }
+  const amenities = room?.amenities || [];
+  if (amenities.includes("Quiet Zone")) return "quiet";
+  if (amenities.includes("Projector")) return "tech-heavy";
+  return "collaborative";
+}
+
+export function apiAmenitiesToFormIds(amenities = []) {
+  const ids = [];
+  for (const [formId, apiName] of Object.entries(AMENITY_ID_TO_API)) {
+    if (amenities.includes(apiName)) ids.push(formId);
+  }
+  return ids;
+}
