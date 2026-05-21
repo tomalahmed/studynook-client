@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
 import {
   getTokenCookieOptions,
-  signAccessToken,
   TOKEN_COOKIE,
   verifyAccessToken,
 } from "./jwt-token";
@@ -48,19 +46,16 @@ export async function resolveAuthUser(request) {
   }
 
   try {
-    const session = await auth.api.getSession({
-      headers: request.headers,
+    const mintUrl = new URL("/api/auth/mint-token", request.url);
+    const mintRes = await fetch(mintUrl, {
+      headers: { cookie: request.headers.get("cookie") ?? "" },
     });
 
-    if (session?.user?.id) {
-      const role = session.user.role ?? session.user.roleId ?? undefined;
-      const token = await signAccessToken({
-        userId: session.user.id,
-        role,
-      });
+    if (mintRes.ok) {
+      const { user, token } = await mintRes.json();
       const response = NextResponse.next();
       response.cookies.set(TOKEN_COOKIE, token, getTokenCookieOptions());
-      return { user: { id: String(session.user.id), role }, response };
+      return { user, response };
     }
   } catch {
     // Session lookup unavailable — treat as unauthenticated
