@@ -6,7 +6,12 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { isRemoteImage } from "@/lib/images";
 import { roomsApi } from "@/lib/api";
 import { DEFAULT_ROOM_IMAGE } from "@/lib/images";
-import { AMENITY_ID_TO_API } from "@/lib/roomConstants";
+import {
+  AMENITY_ID_TO_API,
+  LIBRARY_BRANCHES,
+  normalizeFloor,
+  ROOM_TYPES,
+} from "@/lib/roomConstants";
 import {
   AirVent,
   CircleCheckBig,
@@ -25,18 +30,7 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 
-const LIBRARY_BRANCHES = [
-  "Central Library",
-  "West Wing Commons",
-  "North Heights Archive",
-  "The Creative Hub",
-];
-
-const ROOM_TYPES = [
-  { id: "quiet", label: "Quiet Zone" },
-  { id: "collaborative", label: "Collaborative" },
-  { id: "tech-heavy", label: "Tech-heavy" },
-];
+const LIBRARY_BRANCH_OPTIONS = LIBRARY_BRANCHES.filter((b) => b.value);
 
 const AMENITIES = [
   { id: "wifi", label: "Wi-Fi", icon: Wifi },
@@ -121,8 +115,10 @@ export default function AddRoomForm() {
   const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   const [roomName, setRoomName] = useState("");
-  const [libraryBranch, setLibraryBranch] = useState(LIBRARY_BRANCHES[0]);
-  const [floor, setFloor] = useState("3rd Floor");
+  const [libraryBranch, setLibraryBranch] = useState(
+    LIBRARY_BRANCH_OPTIONS[0]?.value ?? "Central Library",
+  );
+  const [floor, setFloor] = useState("3");
   const [capacity, setCapacity] = useState("4");
   const [roomType, setRoomType] = useState("quiet");
   const [pricePerHour, setPricePerHour] = useState("5");
@@ -239,10 +235,9 @@ export default function AddRoomForm() {
     if (roomType === "quiet" && !apiAmenities.includes("Quiet Zone")) {
       apiAmenities.push("Quiet Zone");
     }
-
-    const floorLabel = floor.trim().match(/floor/i)
-      ? floor.trim()
-      : `Floor ${floor.trim()}`;
+    if (roomType === "tech-heavy" && !apiAmenities.includes("Projector")) {
+      apiAmenities.push("Projector");
+    }
 
     setIsSubmitting(true);
     try {
@@ -250,9 +245,11 @@ export default function AddRoomForm() {
         name: roomName.trim(),
         description: description.trim(),
         image: trimmedImage,
-        floor: floorLabel,
+        libraryBranch,
+        floor: normalizeFloor(floor),
         capacity: Number(capacity),
         hourlyRate: Number(pricePerHour),
+        roomType,
         amenities: apiAmenities,
       });
       toast.success("Room added successfully");
@@ -318,9 +315,9 @@ export default function AddRoomForm() {
                   onChange={(e) => setLibraryBranch(e.target.value)}
                   className={`${inputClass} appearance-none`}
                 >
-                  {LIBRARY_BRANCHES.map((branch) => (
-                    <option key={branch} value={branch}>
-                      {branch}
+                  {LIBRARY_BRANCH_OPTIONS.map((branch) => (
+                    <option key={branch.value} value={branch.value}>
+                      {branch.label}
                     </option>
                   ))}
                 </select>
