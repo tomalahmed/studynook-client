@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { DEFAULT_ROOM_IMAGE } from "@/lib/images";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCalendarCheck,
@@ -88,7 +89,7 @@ export default function AboutContent() {
           <div className="relative w-full max-w-lg flex-1">
             <div className="overflow-hidden rounded-xl border-8 border-white candy-shadow-secondary">
               <Image
-                src="/images/library.png"
+                src={DEFAULT_ROOM_IMAGE}
                 alt="Students studying in a bright library space"
                 width={640}
                 height={480}

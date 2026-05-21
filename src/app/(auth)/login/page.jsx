@@ -1,10 +1,10 @@
 import { Suspense } from "react";
 import LoginForm from "@/components/auth/LoginForm";
-
-export const metadata = {
-  title: "StudyNook – Login",
-  description: "Log in to your StudyNook account",
-};
+import { createPageMetadata } from "@/lib/site";
+export const metadata = createPageMetadata(
+  "Login",
+  "Log in to your StudyNook account to book and list study rooms.",
+);
 
 export default function LoginPage() {
   return (

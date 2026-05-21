@@ -2,8 +2,10 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { isRemoteImage } from "@/lib/images";
 import { roomsApi } from "@/lib/api";
+import { DEFAULT_ROOM_IMAGE } from "@/lib/images";
 import { AMENITY_ID_TO_API } from "@/lib/roomConstants";
 import {
   AirVent,
@@ -45,7 +47,7 @@ const AMENITIES = [
   { id: "cafe", label: "Cafe Near", icon: Coffee },
 ];
 
-const DEFAULT_PREVIEW_IMAGE = "/images/library.png";
+const DEFAULT_PREVIEW_IMAGE = DEFAULT_ROOM_IMAGE;
 
 const inputClass =
   "w-full rounded-full border-none bg-surface-variant px-6 py-3 text-on-surface outline-none transition-all focus:ring-2 focus:ring-primary";
@@ -114,7 +116,9 @@ function AmenityOption({ id, label, icon: Icon, checked, onToggle }) {
 export default function AddRoomForm() {
   const router = useRouter();
   const fileInputRef = useRef(null);
+  const previewBlobRef = useRef(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   const [roomName, setRoomName] = useState("");
   const [libraryBranch, setLibraryBranch] = useState(LIBRARY_BRANCHES[0]);
@@ -123,9 +127,7 @@ export default function AddRoomForm() {
   const [roomType, setRoomType] = useState("quiet");
   const [pricePerHour, setPricePerHour] = useState("5");
   const [description, setDescription] = useState("");
-  const [imageUrl, setImageUrl] = useState(
-    "https://images.unsplash.com/photo-1521587760476-6c122a7ad469?w=800",
-  );
+  const [imageUrl, setImageUrl] = useState(DEFAULT_ROOM_IMAGE);
   const [amenities, setAmenities] = useState([]);
   const [previewImage, setPreviewImage] = useState(DEFAULT_PREVIEW_IMAGE);
 
@@ -150,7 +152,16 @@ export default function AddRoomForm() {
     );
   };
 
-  const handleImageChange = (event) => {
+  useEffect(() => {
+    return () => {
+      if (previewBlobRef.current) {
+        URL.revokeObjectURL(previewBlobRef.current);
+        previewBlobRef.current = null;
+      }
+    };
+  }, []);
+
+  const handleImageChange = async (event) => {
     const file = event.target.files?.[0];
     if (!file) {
       return;
@@ -161,7 +172,44 @@ export default function AddRoomForm() {
       return;
     }
 
-    setPreviewImage(URL.createObjectURL(file));
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image must be 5 MB or smaller.");
+      return;
+    }
+
+    setIsUploadingImage(true);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await fetch("/api/upload/room-image", {
+        method: "POST",
+        body: formData,
+        credentials: "include",
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        throw new Error(data.error || "Upload failed");
+      }
+
+      if (previewBlobRef.current) {
+        URL.revokeObjectURL(previewBlobRef.current);
+        previewBlobRef.current = null;
+      }
+
+      setImageUrl(data.url);
+      setPreviewImage(data.url);
+      toast.success("Image uploaded");
+    } catch (err) {
+      toast.error(err.message || "Could not upload image.");
+    } finally {
+      setIsUploadingImage(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
   };
 
   const handleSubmit = async (event) => {
@@ -172,8 +220,15 @@ export default function AddRoomForm() {
       return;
     }
 
-    if (!imageUrl.trim()) {
-      toast.error("Please provide an image URL.");
+    const trimmedImage = imageUrl.trim();
+
+    if (!trimmedImage) {
+      toast.error("Please provide an image URL or upload a photo.");
+      return;
+    }
+
+    if (trimmedImage.startsWith("blob:")) {
+      toast.error("Wait for the upload to finish, or paste an image URL.");
       return;
     }
 
@@ -194,7 +249,7 @@ export default function AddRoomForm() {
       await roomsApi.create({
         name: roomName.trim(),
         description: description.trim(),
-        image: imageUrl.trim(),
+        image: trimmedImage,
         floor: floorLabel,
         capacity: Number(capacity),
         hourlyRate: Number(pricePerHour),
@@ -209,7 +264,7 @@ export default function AddRoomForm() {
     }
   };
 
-  const isBlobImage = previewImage.startsWith("blob:");
+  const previewUsesRemote = isRemoteImage(previewImage);
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 sm:py-16">
@@ -391,44 +446,52 @@ export default function AddRoomForm() {
                 htmlFor="imageUrl"
                 className="mb-2 block px-2 text-sm font-bold text-on-surface-variant"
               >
-                Image URL (required)
+                Image URL or upload below
               </label>
               <input
                 id="imageUrl"
                 name="imageUrl"
-                type="url"
+                type="text"
                 required
                 value={imageUrl}
                 onChange={(e) => {
-                  setImageUrl(e.target.value);
-                  if (e.target.value.startsWith("http")) {
-                    setPreviewImage(e.target.value);
+                  const value = e.target.value;
+                  setImageUrl(value);
+                  if (
+                    value.startsWith("http") ||
+                    value.startsWith("/images/")
+                  ) {
+                    setPreviewImage(value);
                   }
                 }}
-                placeholder="https://example.com/room.jpg"
+                placeholder="https://example.com/room.jpg or upload below"
                 className={inputClass}
               />
             </div>
             <input
               ref={fileInputRef}
               type="file"
-              accept="image/*"
+              accept="image/jpeg,image/png,image/webp,image/gif"
               className="sr-only"
               onChange={handleImageChange}
             />
             <button
               type="button"
+              disabled={isUploadingImage}
               onClick={() => fileInputRef.current?.click()}
-              className="group flex w-full cursor-pointer flex-col items-center justify-center rounded-xl border-4 border-dashed border-[#dcc8e0] p-8 text-center transition-colors hover:border-primary"
+              className="group flex w-full cursor-pointer flex-col items-center justify-center rounded-xl border-4 border-dashed border-[#dcc8e0] p-8 text-center transition-colors hover:border-primary disabled:cursor-wait disabled:opacity-70"
             >
               <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary-container transition-transform group-hover:scale-110">
-                <Upload className="h-8 w-8 text-primary" strokeWidth={2} />
+                <Upload
+                  className={`h-8 w-8 text-primary ${isUploadingImage ? "animate-pulse" : ""}`}
+                  strokeWidth={2}
+                />
               </div>
               <p className="font-bold text-on-surface-variant">
-                Click to upload images
+                {isUploadingImage ? "Uploading…" : "Click to upload an image"}
               </p>
               <p className="text-sm text-[#907898]">
-                or drag and drop sweet shots here
+                JPEG, PNG, WebP, or GIF — max 5 MB
               </p>
             </button>
           </article>
@@ -455,7 +518,7 @@ export default function AddRoomForm() {
         <div className="flex justify-center pt-8">
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isSubmitting || isUploadingImage}
             className="group relative flex items-center gap-3 overflow-hidden rounded-full bg-primary px-12 py-5 text-xl font-black text-on-primary candy-shadow-primary transition-all duration-300 ease-[cubic-bezier(0.175,0.885,0.32,1.275)] hover:scale-[1.03] active:scale-[0.97] disabled:opacity-80"
           >
             <span className="absolute inset-0 translate-y-full bg-white/20 transition-transform group-hover:translate-y-0" />
@@ -487,7 +550,7 @@ export default function AddRoomForm() {
               fill
               sizes="(max-width: 768px) 100vw, 672px"
               className="object-cover"
-              unoptimized={isBlobImage}
+              unoptimized={previewUsesRemote}
             />
             <div className="absolute top-4 right-4 rounded-full bg-primary px-4 py-1 text-sm font-bold text-on-primary shadow-lg">
               ${displayPrice}/hr

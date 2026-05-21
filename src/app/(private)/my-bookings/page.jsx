@@ -1,9 +1,10 @@
 import MyBookingsView from "@/components/rooms/MyBookingsView";
+import { createPageMetadata } from "@/lib/site";
 
-export const metadata = {
-  title: "StudyNook – My Bookings",
-  description: "View and manage your study room bookings",
-};
+export const metadata = createPageMetadata(
+  "My Bookings",
+  "View and manage your study room bookings on StudyNook.",
+);
 
 export default function MyBookingsPage() {
   return (

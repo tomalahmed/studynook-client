@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { HERO_BANNER_IMAGE } from "@/lib/images";
 
 function RocketIcon() {
   return (
@@ -98,7 +99,7 @@ export default function HeroBanner() {
             }}
           >
             <Image
-              src="/images/Banner.png"
+              src={HERO_BANNER_IMAGE}
               alt="StudyNook — modern study room with pastel pink and purple accents"
               width={800}
               height={800}

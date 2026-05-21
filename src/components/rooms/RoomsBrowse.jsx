@@ -5,6 +5,7 @@ import { Search } from "lucide-react";
 import { roomsApi } from "@/lib/api";
 import { ASSIGNMENT_AMENITIES } from "@/lib/roomConstants";
 import RoomCard from "@/components/rooms/RoomCard";
+import PageLoader from "@/components/ui/PageLoader";
 
 export default function RoomsBrowse() {
   const [rooms, setRooms] = useState([]);
@@ -112,12 +113,7 @@ export default function RoomsBrowse() {
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-20">
-          <div
-            className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"
-            aria-label="Loading rooms"
-          />
-        </div>
+        <PageLoader label="Loading rooms" minHeight="min-h-[320px]" />
       ) : rooms.length === 0 ? (
         <p className="rounded-xl bg-white py-16 text-center text-lg font-medium text-on-surface-variant candy-shadow-secondary">
           No rooms found. Try adjusting your search or filters.

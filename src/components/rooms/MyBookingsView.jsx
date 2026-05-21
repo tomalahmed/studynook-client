@@ -5,6 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { bookingsApi } from "@/lib/api";
+import { isRemoteImage, resolveRoomImage } from "@/lib/images";
+import PageLoader from "@/components/ui/PageLoader";
 
 function formatHour(h) {
   return `${String(h).padStart(2, "0")}:00`;
@@ -52,11 +54,7 @@ export default function MyBookingsView() {
   };
 
   if (loading) {
-    return (
-      <div className="flex justify-center py-20">
-        <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-      </div>
-    );
+    return <PageLoader label="Loading your bookings" minHeight="min-h-[280px]" />;
   }
 
   if (bookings.length === 0) {
@@ -77,11 +75,7 @@ export default function MyBookingsView() {
     <>
       <div className="space-y-4">
         {bookings.map((booking) => {
-          const image =
-            booking.room?.image?.startsWith("http") ||
-            booking.room?.image?.startsWith("/")
-              ? booking.room.image
-              : "/images/library.png";
+          const image = resolveRoomImage(booking.room?.image);
 
           return (
             <article
@@ -94,7 +88,7 @@ export default function MyBookingsView() {
                   alt={booking.room?.name || "Room"}
                   fill
                   className="object-cover"
-                  unoptimized={image.startsWith("http")}
+                  unoptimized={isRemoteImage(image)}
                 />
               </div>
               <div className="min-w-0 flex-1">

@@ -12,6 +12,7 @@ import {
   formatCapacityLabel,
   formatFloorLabel,
 } from "@/lib/roomConstants";
+import { isRemoteImage, resolveRoomImage } from "@/lib/images";
 import BookingModal from "@/components/rooms/BookingModal";
 
 export default function RoomDetails({ room: initialRoom }) {
@@ -26,10 +27,7 @@ export default function RoomDetails({ room: initialRoom }) {
   const isOwner =
     isAuthenticated && user?.id && room.owner?.id === String(user.id);
 
-  const imageSrc =
-    room.image?.startsWith("http") || room.image?.startsWith("/")
-      ? room.image
-      : "/images/library.png";
+  const imageSrc = resolveRoomImage(room.image);
 
   const handleBookNow = () => {
     if (isPending) return;
@@ -100,7 +98,7 @@ export default function RoomDetails({ room: initialRoom }) {
             priority
             sizes="(max-width: 1024px) 100vw, 960px"
             className="object-cover"
-            unoptimized={imageSrc.startsWith("http")}
+            unoptimized={isRemoteImage(imageSrc)}
           />
           <div className="absolute top-4 right-4 rounded-full bg-primary px-4 py-1 text-sm font-bold text-on-primary shadow-lg">
             ${Number(room.hourlyRate).toFixed(2)}/hr

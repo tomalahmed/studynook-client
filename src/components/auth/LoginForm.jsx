@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { authClient } from "@/lib/auth-client";
+import { LOGIN_IMAGE } from "@/lib/images";
 import {
   Button,
   InputGroup,
@@ -271,7 +272,7 @@ export default function LoginForm() {
           >
             <div className="relative aspect-square w-full overflow-hidden rounded-lg shadow-inner">
               <Image
-                src="/images/login.png"
+                src={LOGIN_IMAGE}
                 alt="A cozy and modern study nook in a library"
                 fill
                 priority

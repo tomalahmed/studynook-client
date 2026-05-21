@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { authClient } from "@/lib/auth-client";
+import { REGISTER_IMAGE } from "@/lib/images";
 import { validatePassword } from "@/lib/password";
 
 function GoogleIcon() {
@@ -152,7 +153,7 @@ export default function RegisterForm() {
         >
           <div className="relative h-full w-full overflow-hidden rounded-xl shadow-[0_12px_40px_rgba(124,82,170,0.12)]">
             <Image
-              src="/images/register.png"
+              src={REGISTER_IMAGE}
               alt="Students collaborating in a modern library study space"
               fill
               priority

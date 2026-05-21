@@ -1,9 +1,10 @@
 import RegisterForm from "@/components/auth/RegisterForm";
+import { createPageMetadata } from "@/lib/site";
 
-export const metadata = {
-  title: "StudyNook – Register",
-  description: "Create your StudyNook account",
-};
+export const metadata = createPageMetadata(
+  "Register",
+  "Create your StudyNook account to list and book study rooms.",
+);
 
 export default function RegisterPage() {
   return <RegisterForm />;

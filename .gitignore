@@ -20,6 +20,10 @@
 # production
 /build
 
+# user-uploaded room images (keep folder via .gitkeep)
+/public/images/uploads/*
+!/public/images/uploads/.gitkeep
+
 # misc
 .DS_Store
 *.pem

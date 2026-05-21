@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { NOT_FOUND_IMAGE } from "@/lib/images";
 import { useEffect, useRef } from "react";
 import { Home, Sparkles, DoorOpen } from "lucide-react";
 
@@ -81,7 +82,7 @@ export default function NotFoundView() {
         <div className="group relative mb-8">
           <div className="animate-float-notfound">
             <Image
-              src="/images/notfound.png"
+              src={NOT_FOUND_IMAGE}
               alt="404 — page not found illustration"
               width={500}
               height={400}

@@ -3,19 +3,18 @@ import LatestRoomsSection from "@/components/home/LatestRoomsSection";
 import BenefitsSection from "@/components/home/BenefitsSection";
 import HowItWorksSection from "@/components/home/howitworks";
 import CtaSection from "@/components/home/cta";
+import { createPageMetadata } from "@/lib/site";
 
-export const metadata = {
-  title: "StudyNook – Home",
-  description:
-    "Browse and book quiet, private study rooms in your library. List your own room and earn.",
-};
-
+export const metadata = createPageMetadata(
+  "Home",
+  "Browse and book quiet, private study rooms in your library. List your own room and earn.",
+);
 export default function HomePage() {
   return (
     <>
       <HeroBanner />
-      <LatestRoomsSection />
       <BenefitsSection />
+      <LatestRoomsSection />
       <HowItWorksSection />
       <CtaSection />
     </>

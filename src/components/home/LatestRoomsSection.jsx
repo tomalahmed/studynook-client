@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { roomsApi } from "@/lib/api";
 import RoomCard from "@/components/rooms/RoomCard";
+import PageLoader from "@/components/ui/PageLoader";
 
 export default function LatestRoomsSection() {
   const [rooms, setRooms] = useState([]);
@@ -30,12 +31,7 @@ export default function LatestRoomsSection() {
         </div>
 
         {loading ? (
-          <div className="flex justify-center py-16">
-            <div
-              className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"
-              aria-label="Loading rooms"
-            />
-          </div>
+          <PageLoader label="Loading rooms" minHeight="min-h-[280px]" />
         ) : rooms.length === 0 ? (
           <p className="text-center text-on-surface-variant">
             No rooms listed yet. Be the first to{" "}

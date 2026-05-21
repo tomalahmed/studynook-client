@@ -9,8 +9,8 @@ const dmSans = DM_Sans({
 });
 
 export const metadata = {
-  title: "404 - StudyNook",
-  description: "Page not found on StudyNook",
+  title: { absolute: "404 - StudyNook" },
+  description: "The page you are looking for could not be found on StudyNook.",
 };
 
 export default function NotFound() {

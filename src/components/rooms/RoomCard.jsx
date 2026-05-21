@@ -6,13 +6,11 @@ import {
   formatFloorLabel,
   truncateText,
 } from "@/lib/roomConstants";
+import { isRemoteImage, resolveRoomImage } from "@/lib/images";
 
 export default function RoomCard({ room }) {
   const { visible, extra } = amenityChips(room.amenities);
-  const imageSrc =
-    room.image?.startsWith("http") || room.image?.startsWith("/")
-      ? room.image
-      : "/images/library.png";
+  const imageSrc = resolveRoomImage(room.image);
 
   return (
     <Link
@@ -26,7 +24,7 @@ export default function RoomCard({ room }) {
           fill
           sizes="(max-width: 768px) 100vw, 400px"
           className="object-cover transition-transform group-hover:scale-[1.02]"
-          unoptimized={imageSrc.startsWith("http")}
+          unoptimized={isRemoteImage(imageSrc)}
         />
         <div className="absolute top-3 right-3 rounded-full bg-primary px-3 py-1 text-xs font-bold text-on-primary">
           ${Number(room.hourlyRate).toFixed(0)}/hr
