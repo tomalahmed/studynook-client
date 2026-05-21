@@ -129,9 +129,9 @@ export default function RegisterForm() {
   };
 
   return (
-    <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-12">
+    <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-stretch gap-8 md:grid-cols-2 md:gap-10 lg:gap-12">
       <motion.div
-        className="relative hidden flex-col items-center justify-center p-8 lg:flex"
+        className="relative hidden flex-col items-center justify-center rounded-2xl bg-[#eedcff]/40 p-6 md:flex lg:p-8"
         {...slideInFromLeft}
       >
         <div
@@ -175,8 +175,8 @@ export default function RegisterForm() {
         </div>
       </motion.div>
 
-      <motion.div className="w-full" {...slideInFromLeft} transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}>
-        <div className="rounded-lg border border-[#dcc8e0]/30 bg-white p-8 shadow-[0_8px_40px_rgba(124,82,170,0.08)] md:p-12">
+      <motion.div className="flex w-full min-w-0" {...slideInFromLeft} transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}>
+        <div className="w-full rounded-2xl border border-[#dcc8e0]/30 bg-white p-6 shadow-[0_8px_40px_rgba(124,82,170,0.08)] sm:p-8 md:p-10 lg:rounded-3xl lg:p-12">
           <div className="mb-8">
             <h1 className="mb-2 text-3xl font-black text-primary italic sm:text-4xl">
               Start your journey!

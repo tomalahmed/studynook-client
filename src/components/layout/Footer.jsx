@@ -52,7 +52,7 @@ function StudyNookLogo({ className = "size-5" }) {
 
 export default function Footer() {
   return (
-    <footer className="mt-20 flex flex-col gap-8 border-t border-[#dcc8e0] px-4 py-12">
+    <footer className="mt-16 flex flex-col gap-8 border-t border-[#dcc8e0] px-4 py-10 sm:mt-20 sm:px-6 sm:py-12 lg:px-10">
       <div className="flex flex-col justify-between gap-10 md:flex-row">
         <div className="flex max-w-sm flex-col gap-4">
           <div className="flex items-center gap-3 text-primary">

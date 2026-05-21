@@ -1,6 +1,7 @@
 import { DM_Sans } from "next/font/google";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import PageShell from "@/components/layout/PageShell";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -10,10 +11,12 @@ const dmSans = DM_Sans({
 export default function PrivateLayout({ children }) {
   return (
     <div
-      className={`${dmSans.variable} min-h-screen overflow-x-hidden bg-background font-body text-on-background`}
+      className={`${dmSans.variable} flex min-h-screen flex-col bg-background font-body text-on-background`}
     >
       <Navbar />
-      <main>{children}</main>
+      <main className="flex-1 overflow-x-clip">
+        <PageShell>{children}</PageShell>
+      </main>
       <Footer />
     </div>
   );

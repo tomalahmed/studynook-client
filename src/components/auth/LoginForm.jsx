@@ -124,7 +124,7 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl min-h-[min(700px,calc(100vh-12rem))] flex-col overflow-hidden rounded-xl bg-white shadow-[0_12px_40px_rgba(124,82,170,0.1)] md:flex-row">
+    <div className="mx-auto flex w-full min-h-[min(640px,calc(100dvh-var(--nav-height,57px)-10rem))] flex-col overflow-hidden rounded-2xl bg-white shadow-[0_12px_40px_rgba(124,82,170,0.12)] md:min-h-[min(700px,calc(100dvh-var(--nav-height,57px)-8rem))] md:flex-row lg:rounded-3xl">
         <motion.div
           className="flex w-full flex-col justify-center p-8 md:w-1/2 md:p-16"
           {...slideInFromLeft}

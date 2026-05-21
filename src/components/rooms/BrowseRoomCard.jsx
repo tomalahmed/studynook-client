@@ -43,19 +43,20 @@ export default function BrowseRoomCard({ room }) {
   const category = getRoomCategory(room);
   const amenities = (room.amenities || []).slice(0, 3);
   const location = `${room.libraryBranch || "Library"} • ${formatFloorLabel(room.floor)}`;
+  const rate = Number(room.hourlyRate);
 
   return (
-    <article className="group overflow-hidden rounded-lg border border-transparent bg-surface candy-shadow-secondary transition-all duration-300 ease-out hover:scale-[1.03] hover:border-primary/20">
+    <article className="group flex h-full flex-col overflow-hidden rounded-lg border border-transparent bg-surface candy-shadow-secondary transition-shadow duration-300 hover:border-primary/20 hover:shadow-lg">
       <Link
         href={roomDetails(room.id)}
-        className="relative block h-48 overflow-hidden"
+        className="relative block aspect-4/3 w-full shrink-0 overflow-hidden"
       >
         <Image
           src={imageSrc}
           alt={room.name}
           fill
-          sizes="(max-width: 768px) 100vw, 400px"
-          className="object-cover transition-transform duration-500 group-hover:scale-110"
+          sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+          className="object-cover transition-transform duration-500 group-hover:scale-105"
           unoptimized={isRemoteImage(imageSrc)}
         />
         <span
@@ -64,24 +65,30 @@ export default function BrowseRoomCard({ room }) {
           {category.label}
         </span>
         <span className="absolute right-4 bottom-4 rounded-full bg-white/90 px-3 py-1 text-sm font-bold text-secondary backdrop-blur">
-          ${Number(room.hourlyRate).toFixed(0)}/hr
+          ${Number.isFinite(rate) ? rate.toFixed(0) : "—"}/hr
         </span>
       </Link>
 
-      <div className="p-6">
-        <h3 className="mb-1 text-xl font-bold text-on-surface">{room.name}</h3>
-        <p className="mb-4 flex items-center gap-1 text-sm text-on-surface-variant">
+      <div className="flex flex-1 flex-col p-6">
+        <h3 className="mb-1 line-clamp-1 text-xl font-bold text-on-surface">
+          {room.name}
+        </h3>
+        <p className="mb-4 line-clamp-1 flex items-center gap-1 text-sm text-on-surface-variant">
           <MapPin className="h-3.5 w-3.5 shrink-0" strokeWidth={2.5} />
           {location}
         </p>
-        <div className="mb-6 flex gap-3">
-          {amenities.map((amenity) => (
-            <AmenityIcon key={amenity} name={amenity} />
-          ))}
+        <div className="mb-6 flex min-h-5 gap-3">
+          {amenities.length > 0 ? (
+            amenities.map((amenity) => (
+              <AmenityIcon key={amenity} name={amenity} />
+            ))
+          ) : (
+            <span className="text-xs text-on-surface-variant/60">No amenities listed</span>
+          )}
         </div>
         <Link
           href={roomDetails(room.id)}
-          className="block w-full rounded-full bg-secondary py-3 text-center font-bold text-on-secondary candy-shadow-secondary transition-all hover:bg-primary active:scale-95"
+          className="mt-auto block w-full rounded-full bg-secondary py-3 text-center font-bold text-on-secondary candy-shadow-secondary transition-colors hover:bg-primary active:scale-95"
         >
           Book Now
         </Link>

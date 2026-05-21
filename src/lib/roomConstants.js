@@ -81,27 +81,20 @@ export function formatCapacityLabel(capacity) {
   return `${n} people`;
 }
 
-/** Badge on browse cards — uses stored roomType when present */
+/** Badge on browse cards — derived from amenities (stored roomType may be stale). */
 export function getRoomCategory(room) {
-  const type = ROOM_TYPES.find((t) => t.id === room.roomType);
-  if (type) {
-    const variant =
-      type.id === "quiet"
-        ? "primary"
-        : type.id === "tech-heavy"
-          ? "secondary"
-          : "tertiary";
-    return { label: type.label, variant };
+  const type = ROOM_TYPES.find((t) => t.id === getRoomTypeId(room));
+  if (!type) {
+    return { label: "Collaborative", variant: "tertiary" };
   }
 
-  const amenities = room.amenities || [];
-  if (amenities.includes("Quiet Zone")) {
-    return { label: "Quiet Zone", variant: "primary" };
-  }
-  if (amenities.includes("Projector")) {
-    return { label: "Tech-heavy", variant: "secondary" };
-  }
-  return { label: "Collaborative", variant: "tertiary" };
+  const variant =
+    type.id === "quiet"
+      ? "primary"
+      : type.id === "tech-heavy"
+        ? "secondary"
+        : "tertiary";
+  return { label: type.label, variant };
 }
 
 export function amenityChips(amenities = [], maxVisible = 3) {
@@ -117,9 +110,6 @@ export function floorToInputValue(floor) {
 }
 
 export function getRoomTypeId(room) {
-  if (room?.roomType && ROOM_TYPES.some((t) => t.id === room.roomType)) {
-    return room.roomType;
-  }
   const amenities = room?.amenities || [];
   if (amenities.includes("Quiet Zone")) return "quiet";
   if (amenities.includes("Projector")) return "tech-heavy";
