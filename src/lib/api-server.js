@@ -2,7 +2,9 @@
  * Server-only fetch helpers (direct to Express during SSR).
  */
 
-const API_BASE = process.env.API_URL?.replace(/\/$/, "") || "http://localhost:5000";
+import { getApiUrl } from "@/lib/app-env";
+
+const API_BASE = getApiUrl();
 
 async function serverFetch(path) {
   const res = await fetch(`${API_BASE}/api${path}`, {

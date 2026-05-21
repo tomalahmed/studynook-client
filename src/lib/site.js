@@ -1,5 +1,7 @@
 /** Site-wide SEO and page titles (assignment: dynamic tab titles). */
 
+import { getBetterAuthUrl } from "@/lib/app-env";
+
 export const SITE_NAME = "StudyNook";
 
 const DEFAULT_DESCRIPTION =
@@ -22,10 +24,7 @@ export function createPageMetadata(segment, description = DEFAULT_DESCRIPTION) {
 }
 
 export function getMetadataBase() {
-  const url =
-    process.env.BETTER_AUTH_URL ||
-    process.env.NEXT_PUBLIC_BETTER_AUTH_URL ||
-    "http://localhost:3000";
+  const url = getBetterAuthUrl();
   try {
     return new URL(url);
   } catch {

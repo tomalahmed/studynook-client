@@ -1,3 +1,5 @@
+import { getApiUrl } from "./src/lib/app-env.js";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactCompiler: true,
@@ -12,7 +14,7 @@ const nextConfig = {
     ],
   },
   async rewrites() {
-    const apiUrl = process.env.API_URL || "http://localhost:5000";
+    const apiUrl = getApiUrl();
     return [
       {
         source: "/api/rooms/:path*",

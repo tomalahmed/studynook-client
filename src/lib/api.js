@@ -1,6 +1,7 @@
 /**
- * API client — browser uses Next rewrites to Express; server uses API_URL.
+ * API client — browser uses Next rewrites to Express; server uses getApiUrl().
  */
+import { getApiUrl } from "@/lib/app-env";
 
 export class ApiError extends Error {
   constructor(message, status) {
@@ -14,7 +15,7 @@ function getApiBase() {
   if (typeof window !== "undefined") {
     return "";
   }
-  return process.env.API_URL?.replace(/\/$/, "") || "http://localhost:5000";
+  return getApiUrl();
 }
 
 export async function api(path, options = {}) {

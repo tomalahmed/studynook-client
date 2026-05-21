@@ -1,6 +1,7 @@
 import { betterAuth } from "better-auth";
 import { mongodbAdapter } from "@better-auth/mongo-adapter";
 import { nextCookies } from "better-auth/next-js";
+import { getBetterAuthUrl } from "@/lib/app-env";
 import { client, getDatabase } from "./mongodb";
 
 const googleClientId = process.env.GOOGLE_CLIENT_ID?.trim();
@@ -16,7 +17,7 @@ export const auth = betterAuth({
     client,
     transaction: false,
   }),
-  baseURL: process.env.BETTER_AUTH_URL,
+  baseURL: getBetterAuthUrl(),
   secret: process.env.BETTER_AUTH_SECRET,
   emailAndPassword: {
     enabled: true,

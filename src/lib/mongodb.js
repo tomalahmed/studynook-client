@@ -1,4 +1,5 @@
 import { MongoClient } from "mongodb";
+import { getMongoDbName } from "@/lib/app-env";
 
 const uri = process.env.MONGODB_URI;
 const globalForMongo = globalThis;
@@ -22,7 +23,6 @@ if (process.env.NODE_ENV !== "production") {
 export { client };
 
 export function getDatabase() {
-  // Must match the exact database name in MongoDB (case-sensitive on Atlas).
-  const dbName = process.env.MONGODB_DB_NAME?.trim() || "StudyNook";
-  return client.db(dbName);
+  // Same database as Express (studynook-server): rooms, bookings, Better Auth `user`, etc.
+  return client.db(getMongoDbName());
 }
