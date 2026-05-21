@@ -1,7 +1,7 @@
 import RegisterForm from "@/components/auth/RegisterForm";
 
 export const metadata = {
-  title: "Register | StudyNook",
+  title: "StudyNook – Register",
   description: "Create your StudyNook account",
 };
 

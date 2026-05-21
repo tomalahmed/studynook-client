@@ -1,10 +1,10 @@
 import { notFound } from "next/navigation";
 import RoomDetails from "@/components/rooms/RoomDetails";
-import { getRoomById } from "@/lib/rooms";
+import { fetchRoomById } from "@/lib/api-server";
 
 export async function generateMetadata({ params }) {
   const { id } = await params;
-  const room = getRoomById(id);
+  const room = await fetchRoomById(id);
 
   return {
     title: room ? `${room.name} | StudyNook` : "Room | StudyNook",
@@ -14,7 +14,7 @@ export async function generateMetadata({ params }) {
 
 export default async function RoomDetailsPage({ params }) {
   const { id } = await params;
-  const room = getRoomById(id);
+  const room = await fetchRoomById(id);
 
   if (!room) {
     notFound();

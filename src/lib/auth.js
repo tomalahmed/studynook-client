@@ -6,6 +6,11 @@ import { client, getDatabase } from "./mongodb";
 const googleClientId = process.env.GOOGLE_CLIENT_ID?.trim();
 const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET?.trim();
 
+/**
+ * Better Auth handles login/register/Google. After a session exists,
+ * SessionTokenSync + /api/auth/set-token mint an httpOnly JWT (`token`)
+ * with { userId } for Next middleware and the Express API (same secret).
+ */
 export const auth = betterAuth({
   database: mongodbAdapter(getDatabase(), {
     client,

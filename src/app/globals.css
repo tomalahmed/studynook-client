@@ -47,3 +47,19 @@ body {
 .candy-shadow-tertiary {
   box-shadow: 0 8px 24px rgba(0, 150, 204, 0.2);
 }
+
+@keyframes float-notfound {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.animate-float-notfound {
+  animation: float-notfound 6s ease-in-out infinite;
+}

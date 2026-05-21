@@ -1,7 +1,7 @@
-import Link from "next/link";
+import MyBookingsView from "@/components/rooms/MyBookingsView";
 
 export const metadata = {
-  title: "My Bookings | StudyNook",
+  title: "StudyNook – My Bookings",
   description: "View and manage your study room bookings",
 };
 
@@ -16,18 +16,7 @@ export default function MyBookingsPage() {
           Upcoming and past study sessions you have reserved.
         </p>
       </div>
-
-      <div className="rounded-xl bg-white p-10 text-center candy-shadow-secondary">
-        <p className="text-on-surface-variant">
-          No bookings yet. Browse rooms and book your perfect study nook!
-        </p>
-        <Link
-          href="/rooms"
-          className="mt-6 inline-flex rounded-full border-2 border-[#dcc8e0] bg-white px-8 py-3 text-sm font-bold text-on-surface transition-transform hover:scale-[1.03] active:scale-95"
-        >
-          Browse Rooms
-        </Link>
-      </div>
+      <MyBookingsView />
     </div>
   );
 }

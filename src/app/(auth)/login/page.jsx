@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import LoginForm from "@/components/auth/LoginForm";
 
 export const metadata = {
-  title: "Login - StudyNook",
+  title: "StudyNook – Login",
   description: "Log in to your StudyNook account",
 };
 

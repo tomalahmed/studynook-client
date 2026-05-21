@@ -1,7 +1,10 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useMemo, useRef, useState } from "react";
+import { roomsApi } from "@/lib/api";
+import { AMENITY_ID_TO_API } from "@/lib/roomConstants";
 import {
   AirVent,
   CircleCheckBig,
@@ -109,16 +112,20 @@ function AmenityOption({ id, label, icon: Icon, checked, onToggle }) {
 }
 
 export default function AddRoomForm() {
+  const router = useRouter();
   const fileInputRef = useRef(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [roomName, setRoomName] = useState("");
   const [libraryBranch, setLibraryBranch] = useState(LIBRARY_BRANCHES[0]);
-  const [floor, setFloor] = useState("2");
+  const [floor, setFloor] = useState("3rd Floor");
   const [capacity, setCapacity] = useState("4");
   const [roomType, setRoomType] = useState("quiet");
-  const [pricePerHour, setPricePerHour] = useState("5.50");
+  const [pricePerHour, setPricePerHour] = useState("5");
   const [description, setDescription] = useState("");
+  const [imageUrl, setImageUrl] = useState(
+    "https://images.unsplash.com/photo-1521587760476-6c122a7ad469?w=800",
+  );
   const [amenities, setAmenities] = useState([]);
   const [previewImage, setPreviewImage] = useState(DEFAULT_PREVIEW_IMAGE);
 
@@ -165,10 +172,41 @@ export default function AddRoomForm() {
       return;
     }
 
+    if (!imageUrl.trim()) {
+      toast.error("Please provide an image URL.");
+      return;
+    }
+
+    const apiAmenities = amenities
+      .map((id) => AMENITY_ID_TO_API[id])
+      .filter(Boolean);
+
+    if (roomType === "quiet" && !apiAmenities.includes("Quiet Zone")) {
+      apiAmenities.push("Quiet Zone");
+    }
+
+    const floorLabel = floor.trim().match(/floor/i)
+      ? floor.trim()
+      : `Floor ${floor.trim()}`;
+
     setIsSubmitting(true);
-    await new Promise((resolve) => setTimeout(resolve, 1200));
-    setIsSubmitting(false);
-    toast.success("Your StudyNook has been added successfully!");
+    try {
+      await roomsApi.create({
+        name: roomName.trim(),
+        description: description.trim(),
+        image: imageUrl.trim(),
+        floor: floorLabel,
+        capacity: Number(capacity),
+        hourlyRate: Number(pricePerHour),
+        amenities: apiAmenities,
+      });
+      toast.success("Room added successfully");
+      router.push("/my-listings");
+    } catch (err) {
+      toast.error(err.message || "Could not add room.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const isBlobImage = previewImage.startsWith("blob:");
@@ -348,6 +386,29 @@ export default function AddRoomForm() {
               title="Room Photos"
               className="text-secondary"
             />
+            <div className="mb-4">
+              <label
+                htmlFor="imageUrl"
+                className="mb-2 block px-2 text-sm font-bold text-on-surface-variant"
+              >
+                Image URL (required)
+              </label>
+              <input
+                id="imageUrl"
+                name="imageUrl"
+                type="url"
+                required
+                value={imageUrl}
+                onChange={(e) => {
+                  setImageUrl(e.target.value);
+                  if (e.target.value.startsWith("http")) {
+                    setPreviewImage(e.target.value);
+                  }
+                }}
+                placeholder="https://example.com/room.jpg"
+                className={inputClass}
+              />
+            </div>
             <input
               ref={fileInputRef}
               type="file"
