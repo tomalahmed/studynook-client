@@ -1,6 +1,14 @@
+"use client";
+
 import Link from "next/link";
+import { useAuth } from "@/hooks/useAuth";
+import { loginUrl, ROUTES } from "@/lib/routes";
 
 export default function CtaSection() {
+  const { isAuthenticated, isPending } = useAuth();
+  const listRoomHref =
+    !isPending && isAuthenticated ? ROUTES.addRoom : loginUrl(ROUTES.addRoom);
+
   return (
     <section className="px-6 py-20">
       <div className="relative mx-auto max-w-5xl overflow-hidden rounded-xl bg-primary p-12 text-center text-on-primary candy-shadow-primary">
@@ -21,7 +29,7 @@ export default function CtaSection() {
           Start earning today and build a better study community.
         </p>
         <Link
-          href="/add-room"
+          href={listRoomHref}
           className="relative z-10 inline-block rounded-full bg-white px-12 py-4 text-xl font-bold text-primary transition-all duration-200 hover:scale-105 active:scale-95"
         >
           List Your Room

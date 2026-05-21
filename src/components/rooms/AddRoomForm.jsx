@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { isRemoteImage } from "@/lib/images";
 import { roomsApi } from "@/lib/api";
+import { ROUTES } from "@/lib/routes";
 import { DEFAULT_ROOM_IMAGE } from "@/lib/images";
 import {
   AMENITY_ID_TO_API,
@@ -253,7 +254,7 @@ export default function AddRoomForm() {
         amenities: apiAmenities,
       });
       toast.success("Room added successfully");
-      router.push("/my-listings");
+      router.push(ROUTES.myListings);
     } catch (err) {
       toast.error(err.message || "Could not add room.");
     } finally {

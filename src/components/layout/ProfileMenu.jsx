@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown, LogOut } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
+import { ROUTES } from "@/lib/routes";
 
 function getInitials(name) {
   if (!name) {
@@ -47,7 +48,7 @@ export default function ProfileMenu({ user, onNavigate }) {
     setIsSigningOut(false);
     setIsOpen(false);
     onNavigate?.();
-    router.push("/");
+    router.push(ROUTES.home);
     router.refresh();
   };
 
@@ -100,7 +101,7 @@ export default function ProfileMenu({ user, onNavigate }) {
           </div>
 
           <Link
-            href="/my-listings"
+            href={ROUTES.myListings}
             role="menuitem"
             onClick={() => {
               setIsOpen(false);
@@ -111,7 +112,7 @@ export default function ProfileMenu({ user, onNavigate }) {
             My Listings
           </Link>
           <Link
-            href="/my-bookings"
+            href={ROUTES.myBookings}
             role="menuitem"
             onClick={() => {
               setIsOpen(false);

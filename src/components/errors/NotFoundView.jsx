@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { ROUTES } from "@/lib/routes";
 import { NOT_FOUND_IMAGE } from "@/lib/images";
 import { useEffect, useRef } from "react";
 import { Home, Sparkles, DoorOpen } from "lucide-react";
@@ -112,14 +113,14 @@ export default function NotFoundView() {
 
         <div className="flex flex-col items-center gap-6 sm:flex-row">
           <Link
-            href="/"
+            href={ROUTES.home}
             className="group flex items-center gap-3 rounded-full bg-primary px-10 py-5 text-xl font-extrabold text-on-primary candy-shadow-primary transition-all duration-300 ease-out hover:scale-105 active:scale-95"
           >
             <Home className="h-6 w-6" strokeWidth={2.5} />
             Back to Home
           </Link>
           <Link
-            href="/rooms"
+            href={ROUTES.rooms}
             className="group flex items-center gap-3 rounded-full border-4 border-secondary/10 bg-surface-variant px-10 py-5 text-xl font-extrabold text-secondary transition-all duration-300 ease-out hover:scale-105 hover:bg-secondary-container active:scale-95"
           >
             <DoorOpen className="h-6 w-6" strokeWidth={2.5} />

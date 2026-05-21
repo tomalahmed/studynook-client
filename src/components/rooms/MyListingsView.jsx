@@ -5,6 +5,7 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 import { roomsApi } from "@/lib/api";
 import RoomCard from "@/components/rooms/RoomCard";
+import { ROUTES } from "@/lib/routes";
 import PageLoader from "@/components/ui/PageLoader";
 
 export default function MyListingsView() {
@@ -34,7 +35,7 @@ export default function MyListingsView() {
           community!
         </p>
         <Link
-          href="/add-room"
+          href={ROUTES.addRoom}
           className="inline-flex rounded-full bg-primary px-8 py-3 text-sm font-black text-on-primary candy-shadow-primary transition-transform hover:scale-[1.03]"
         >
           Add Your First Room

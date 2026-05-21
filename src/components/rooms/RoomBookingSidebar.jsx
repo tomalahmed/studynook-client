@@ -7,6 +7,7 @@ import { Calendar, Heart, Sparkles } from "lucide-react";
 import toast from "react-hot-toast";
 import { bookingsApi } from "@/lib/api";
 import { HOUR_OPTIONS } from "@/lib/roomConstants";
+import { loginUrl, roomDetails } from "@/lib/routes";
 
 const BOOKING_FEE = 0.5;
 
@@ -43,7 +44,7 @@ export default function RoomBookingSidebar({
     if (isPending) return;
 
     if (!isAuthenticated) {
-      router.push(`/login?callbackUrl=/rooms/${room.id}`);
+      router.push(loginUrl(roomDetails(room.id)));
       return;
     }
 
@@ -224,7 +225,7 @@ export default function RoomBookingSidebar({
 
         {!isAuthenticated && !isPending ? (
           <p className="mt-3 text-center text-xs font-medium text-on-surface-variant">
-            <Link href={`/login?callbackUrl=/rooms/${room.id}`} className="text-primary hover:underline">
+            <Link href={loginUrl(roomDetails(room.id))} className="text-primary hover:underline">
               Sign in
             </Link>{" "}
             to complete your booking.

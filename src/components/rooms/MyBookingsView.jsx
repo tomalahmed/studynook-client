@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import { bookingsApi } from "@/lib/api";
 import { isRemoteImage, resolveRoomImage } from "@/lib/images";
 import PageLoader from "@/components/ui/PageLoader";
+import { roomDetails, ROUTES } from "@/lib/routes";
 
 function formatHour(h) {
   return `${String(h).padStart(2, "0")}:00`;
@@ -62,7 +63,7 @@ export default function MyBookingsView() {
       <div className="rounded-xl bg-white p-10 text-center candy-shadow-secondary">
         <p className="text-on-surface-variant">You have no bookings yet.</p>
         <Link
-          href="/rooms"
+          href={ROUTES.rooms}
           className="mt-6 inline-flex rounded-full border-2 border-[#dcc8e0] bg-white px-8 py-3 text-sm font-bold text-on-surface"
         >
           Browse Rooms
@@ -82,19 +83,43 @@ export default function MyBookingsView() {
               key={booking.id}
               className="flex flex-col gap-4 rounded-xl bg-white p-4 candy-shadow-secondary sm:flex-row sm:items-center"
             >
-              <div className="relative h-24 w-full shrink-0 overflow-hidden rounded-lg bg-surface-variant sm:h-20 sm:w-32">
-                <Image
-                  src={image}
-                  alt={booking.room?.name || "Room"}
-                  fill
-                  className="object-cover"
-                  unoptimized={isRemoteImage(image)}
-                />
-              </div>
+              {booking.room?.id ? (
+                <Link
+                  href={roomDetails(booking.room.id)}
+                  className="relative h-24 w-full shrink-0 overflow-hidden rounded-lg bg-surface-variant sm:h-20 sm:w-32"
+                >
+                  <Image
+                    src={image}
+                    alt={booking.room?.name || "Room"}
+                    fill
+                    className="object-cover"
+                    unoptimized={isRemoteImage(image)}
+                  />
+                </Link>
+              ) : (
+                <div className="relative h-24 w-full shrink-0 overflow-hidden rounded-lg bg-surface-variant sm:h-20 sm:w-32">
+                  <Image
+                    src={image}
+                    alt={booking.room?.name || "Room"}
+                    fill
+                    className="object-cover"
+                    unoptimized={isRemoteImage(image)}
+                  />
+                </div>
+              )}
               <div className="min-w-0 flex-1">
-                <h2 className="font-black text-on-surface">
-                  {booking.room?.name || "Study room"}
-                </h2>
+                {booking.room?.id ? (
+                  <Link
+                    href={roomDetails(booking.room.id)}
+                    className="font-black text-on-surface hover:text-primary"
+                  >
+                    {booking.room?.name || "Study room"}
+                  </Link>
+                ) : (
+                  <h2 className="font-black text-on-surface">
+                    {booking.room?.name || "Study room"}
+                  </h2>
+                )}
                 <p className="text-sm text-on-surface-variant">
                   {formatDate(booking.date)} · {formatHour(booking.startHour)} –{" "}
                   {formatHour(booking.endHour)}

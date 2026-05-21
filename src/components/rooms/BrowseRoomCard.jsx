@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { formatFloorLabel, getRoomCategory } from "@/lib/roomConstants";
 import { isRemoteImage, resolveRoomImage } from "@/lib/images";
+import { roomDetails } from "@/lib/routes";
 
 const AMENITY_ICONS = {
   "Wi-Fi": Wifi,
@@ -46,7 +47,7 @@ export default function BrowseRoomCard({ room }) {
   return (
     <article className="group overflow-hidden rounded-lg border border-transparent bg-surface candy-shadow-secondary transition-all duration-300 ease-out hover:scale-[1.03] hover:border-primary/20">
       <Link
-        href={`/rooms/${room.id}`}
+        href={roomDetails(room.id)}
         className="relative block h-48 overflow-hidden"
       >
         <Image
@@ -79,7 +80,7 @@ export default function BrowseRoomCard({ room }) {
           ))}
         </div>
         <Link
-          href={`/rooms/${room.id}`}
+          href={roomDetails(room.id)}
           className="block w-full rounded-full bg-secondary py-3 text-center font-bold text-on-secondary candy-shadow-secondary transition-all hover:bg-primary active:scale-95"
         >
           Book Now

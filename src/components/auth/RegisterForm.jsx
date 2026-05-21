@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { authClient } from "@/lib/auth-client";
+import { ROUTES } from "@/lib/routes";
 import { REGISTER_IMAGE } from "@/lib/images";
 import { validatePassword } from "@/lib/password";
 
@@ -107,7 +108,7 @@ export default function RegisterForm() {
     }
 
     toast.success("Registration successful! Please login.");
-    router.push("/login");
+    router.push(ROUTES.login);
   };
 
   const handleGoogleSignIn = async () => {
@@ -365,7 +366,7 @@ export default function RegisterForm() {
           <p className="mt-10 text-center text-on-surface-variant">
             Already have an account?{" "}
             <Link
-              href="/login"
+              href={ROUTES.login}
               className="font-bold text-primary decoration-2 underline-offset-4 hover:underline"
             >
               Login

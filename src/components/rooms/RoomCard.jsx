@@ -7,6 +7,7 @@ import {
   truncateText,
 } from "@/lib/roomConstants";
 import { isRemoteImage, resolveRoomImage } from "@/lib/images";
+import { roomDetails } from "@/lib/routes";
 
 export default function RoomCard({ room }) {
   const { visible, extra } = amenityChips(room.amenities);
@@ -14,7 +15,7 @@ export default function RoomCard({ room }) {
 
   return (
     <Link
-      href={`/rooms/${room.id}`}
+      href={roomDetails(room.id)}
       className="group flex h-full flex-col overflow-hidden rounded-xl border-8 border-white bg-white candy-shadow-secondary transition-transform hover:-translate-y-1"
     >
       <div className="relative aspect-video shrink-0 bg-surface-variant">

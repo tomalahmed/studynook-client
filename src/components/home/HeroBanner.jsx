@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { HERO_BANNER_IMAGE } from "@/lib/images";
+import { ROUTES } from "@/lib/routes";
 
 function RocketIcon() {
   return (
@@ -57,14 +58,14 @@ export default function HeroBanner() {
 
           <div className="flex flex-col justify-center gap-3 sm:flex-row sm:gap-4 md:justify-start">
             <Link
-              href="/rooms"
+              href={ROUTES.rooms}
               className="candy-shadow-primary flex items-center justify-center gap-2 rounded-full bg-primary px-8 py-4 text-base font-bold text-on-primary transition-all duration-200 hover:scale-[1.03] active:scale-95 sm:px-10 sm:py-5 sm:text-lg"
             >
               <span>Explore Rooms</span>
               <RocketIcon />
             </Link>
             <Link
-              href="/about"
+              href={ROUTES.about}
               className="rounded-full border-2 border-[#dcc8e0] bg-white px-8 py-4 text-base font-bold text-on-surface transition-all duration-200 hover:bg-surface-variant active:scale-95 sm:px-10 sm:py-5 sm:text-lg"
             >
               Learn More

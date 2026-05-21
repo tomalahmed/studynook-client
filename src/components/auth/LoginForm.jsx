@@ -8,6 +8,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { authClient } from "@/lib/auth-client";
 import { LOGIN_IMAGE } from "@/lib/images";
+import { ROUTES, safeCallbackUrl } from "@/lib/routes";
 import {
   Button,
   InputGroup,
@@ -59,7 +60,7 @@ const slideInFromLeft = {
 export default function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") || "/";
+  const callbackUrl = safeCallbackUrl(searchParams.get("callbackUrl"));
 
   const [focusedField, setFocusedField] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -234,7 +235,7 @@ export default function LoginForm() {
         <p className="mt-10 text-center font-medium text-on-surface-variant md:mt-12">
           Don&apos;t have an account?{" "}
           <Link
-            href="/register"
+            href={ROUTES.register}
             className="ml-1 font-black text-primary hover:underline"
           >
             Register

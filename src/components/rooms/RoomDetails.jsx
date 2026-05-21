@@ -18,6 +18,7 @@ import { buildPremiumPerks, getReviewDisplay } from "@/lib/roomPerks";
 import { isRemoteImage, resolveRoomImage } from "@/lib/images";
 import EditRoomPanel from "@/components/rooms/EditRoomPanel";
 import RoomBookingSidebar from "@/components/rooms/RoomBookingSidebar";
+import { ROUTES } from "@/lib/routes";
 
 function Breadcrumbs({ roomName }) {
   return (
@@ -25,11 +26,11 @@ function Breadcrumbs({ roomName }) {
       aria-label="Breadcrumb"
       className="mb-6 flex flex-wrap items-center gap-1 text-sm font-bold text-on-surface-variant"
     >
-      <Link href="/" className="transition-colors hover:text-primary">
+      <Link href={ROUTES.home} className="transition-colors hover:text-primary">
         Home
       </Link>
       <ChevronRight className="h-4 w-4 shrink-0 opacity-50" strokeWidth={2.5} />
-      <Link href="/rooms" className="transition-colors hover:text-primary">
+      <Link href={ROUTES.rooms} className="transition-colors hover:text-primary">
         Rooms
       </Link>
       <ChevronRight className="h-4 w-4 shrink-0 opacity-50" strokeWidth={2.5} />
@@ -115,7 +116,7 @@ export default function RoomDetails({ room: initialRoom }) {
     try {
       await roomsApi.remove(room.id);
       toast.success("Room deleted successfully");
-      router.push("/my-listings");
+      router.push(ROUTES.myListings);
     } catch (err) {
       toast.error(err.message || "Could not delete room.");
     } finally {

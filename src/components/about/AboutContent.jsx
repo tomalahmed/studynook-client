@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { DEFAULT_ROOM_IMAGE } from "@/lib/images";
+import { loginUrl, ROUTES } from "@/lib/routes";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCalendarCheck,
@@ -72,13 +73,13 @@ export default function AboutContent() {
             </p>
             <div className="flex flex-col items-center gap-4 sm:flex-row lg:justify-start">
               <Link
-                href="/rooms"
+                href={ROUTES.rooms}
                 className="rounded-full bg-primary px-8 py-4 font-black text-on-primary candy-shadow-primary transition-transform hover:scale-[1.03] active:scale-95"
               >
                 Explore Rooms
               </Link>
               <Link
-                href="/add-room"
+                href={loginUrl(ROUTES.addRoom)}
                 className="rounded-full border-2 border-secondary/20 bg-white px-8 py-4 font-black text-secondary transition-transform hover:scale-[1.03] active:scale-95"
               >
                 List Your Room

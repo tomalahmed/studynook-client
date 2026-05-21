@@ -6,16 +6,18 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import ProfileMenu from "@/components/layout/ProfileMenu";
+import { ROUTES } from "@/lib/routes";
 
 const baseNavLinks = [
-  { href: "/", label: "Home" },
-  { href: "/rooms", label: "Rooms" },
+  { href: ROUTES.home, label: "Home" },
+  { href: ROUTES.rooms, label: "Rooms" },
+  { href: ROUTES.about, label: "About" },
 ];
 
 const authenticatedNavLinks = [
-  { href: "/add-room", label: "Add Room" },
-  { href: "/my-listings", label: "My Listings" },
-  { href: "/my-bookings", label: "My Bookings" },
+  { href: ROUTES.addRoom, label: "Add Room" },
+  { href: ROUTES.myListings, label: "My Listings" },
+  { href: ROUTES.myBookings, label: "My Bookings" },
 ];
 
 const panelVariants = {
@@ -142,8 +144,15 @@ export default function Navbar() {
     ? [...baseNavLinks, ...authenticatedNavLinks]
     : baseNavLinks;
 
-  const isActive = (href) =>
-    href === "/" ? pathname === "/" : pathname.startsWith(href);
+  const isActive = (href) => {
+    if (href === ROUTES.home) {
+      return pathname === ROUTES.home;
+    }
+    if (href === ROUTES.rooms) {
+      return pathname === ROUTES.rooms || pathname.startsWith(`${ROUTES.rooms}/`);
+    }
+    return pathname === href || pathname.startsWith(`${href}/`);
+  };
 
   const closeMenu = () => setIsOpen(false);
 
@@ -161,7 +170,7 @@ export default function Navbar() {
   return (
     <header className="relative z-50 border-b border-solid border-[#dcc8e0] bg-background">
       <div className="flex items-center justify-between whitespace-nowrap px-4 py-3 lg:px-10">
-        <Link href="/" className="flex items-center gap-4 text-on-surface">
+        <Link href={ROUTES.home} className="flex items-center gap-4 text-on-surface">
           <div className="text-primary">
             <StudyNookLogo />
           </div>
@@ -195,13 +204,13 @@ export default function Navbar() {
           {!isPending && !isAuthenticated ? (
             <div className="hidden items-center gap-2 sm:flex sm:gap-3">
               <Link
-                href="/login"
+                href={ROUTES.login}
                 className="flex h-10 min-w-[84px] items-center justify-center overflow-hidden rounded-full bg-primary px-6 text-sm font-bold leading-normal tracking-[0.015em] text-on-primary shadow-[0_4px_16px_rgba(224,64,160,0.2)] transition-transform duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:scale-[1.03] active:scale-95"
               >
                 <span className="truncate">Log In</span>
               </Link>
               <Link
-                href="/register"
+                href={ROUTES.register}
                 className="flex h-10 min-w-[84px] items-center justify-center overflow-hidden rounded-full border-2 border-[#dcc8e0] bg-white px-6 text-sm font-bold leading-normal tracking-[0.015em] text-on-surface transition-transform duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:bg-surface-variant hover:scale-[1.03] active:scale-95"
               >
                 <span className="truncate">Register</span>
@@ -278,14 +287,14 @@ export default function Navbar() {
               variants={itemVariants}
             >
               <Link
-                href="/login"
+                href={ROUTES.login}
                 onClick={closeMenu}
                 className="flex h-11 items-center justify-center rounded-full bg-primary px-6 text-sm font-bold text-on-primary shadow-[0_4px_16px_rgba(224,64,160,0.2)] transition-transform active:scale-95"
               >
                 Log In
               </Link>
               <Link
-                href="/register"
+                href={ROUTES.register}
                 onClick={closeMenu}
                 className="flex h-11 items-center justify-center rounded-full border-2 border-[#dcc8e0] bg-white px-6 text-sm font-bold text-on-surface transition-transform active:scale-95"
               >

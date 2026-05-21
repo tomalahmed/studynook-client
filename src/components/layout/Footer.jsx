@@ -9,10 +9,12 @@ import {
   faXTwitter,
 } from "@fortawesome/free-brands-svg-icons";
 
+import { ROUTES } from "@/lib/routes";
+
 const usefulLinks = [
-  { href: "/", label: "Home" },
-  { href: "/rooms", label: "Rooms" },
-  { href: "/about", label: "About" },
+  { href: ROUTES.home, label: "Home" },
+  { href: ROUTES.rooms, label: "Rooms" },
+  { href: ROUTES.about, label: "About" },
 ];
 
 const socialLinks = [

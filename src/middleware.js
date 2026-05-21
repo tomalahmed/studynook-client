@@ -1,29 +1,48 @@
 import { NextResponse } from "next/server";
-import { verifyAuth } from "@/lib/auth-middleware";
+import {
+  applyMintedTokenCookie,
+  resolveAuthUser,
+} from "@/lib/auth-middleware";
+import { isProtectedPath, loginUrl, ROUTES, safeCallbackUrl } from "@/lib/routes";
 
-const authRoutes = ["/login", "/register"];
-const privateRoutes = ["/add-room", "/my-listings", "/my-bookings"];
+const authRoutes = [ROUTES.login, ROUTES.register];
 
 export async function middleware(request) {
   const { pathname } = request.nextUrl;
-  const user = await verifyAuth(request);
+  const { user, response: tokenResponse } = await resolveAuthUser(request);
+
+  const withAuthCookie = (res) =>
+    tokenResponse ? applyMintedTokenCookie(res, tokenResponse) : res;
 
   if (user && authRoutes.some((route) => pathname.startsWith(route))) {
-    return NextResponse.redirect(new URL("/", request.url));
+    const callbackUrl = safeCallbackUrl(
+      request.nextUrl.searchParams.get("callbackUrl"),
+    );
+    const destination =
+      callbackUrl !== ROUTES.home ? callbackUrl : ROUTES.home;
+    return withAuthCookie(NextResponse.redirect(new URL(destination, request.url)));
   }
 
-  if (
-    !user &&
-    privateRoutes.some((route) => pathname.startsWith(route))
-  ) {
-    const loginUrl = new URL("/login", request.url);
-    loginUrl.searchParams.set("callbackUrl", pathname);
-    return NextResponse.redirect(loginUrl);
+  if (!user && isProtectedPath(pathname)) {
+    return NextResponse.redirect(
+      new URL(loginUrl(pathname), request.url),
+    );
+  }
+
+  if (tokenResponse) {
+    return withAuthCookie(tokenResponse);
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/login", "/register", "/add-room", "/my-listings", "/my-bookings"],
+  matcher: [
+    "/login",
+    "/register",
+    "/add-room",
+    "/my-listings",
+    "/my-bookings",
+    "/rooms/:path+",
+  ],
 };
