@@ -43,6 +43,7 @@ export const config = {
     "/add-room",
     "/my-listings",
     "/my-bookings",
+    "/my-favorites",
     "/rooms/:path+",
   ],
 };

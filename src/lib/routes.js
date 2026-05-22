@@ -11,6 +11,7 @@ export const ROUTES = {
   addRoom: "/add-room",
   myListings: "/my-listings",
   myBookings: "/my-bookings",
+  myFavorites: "/my-favorites",
 };
 
 export function roomDetails(id) {
@@ -46,6 +47,7 @@ export function isProtectedPath(pathname) {
     pathname.startsWith(ROUTES.addRoom) ||
     pathname.startsWith(ROUTES.myListings) ||
     pathname.startsWith(ROUTES.myBookings) ||
+    pathname.startsWith(ROUTES.myFavorites) ||
     isRoomDetailsPath(pathname)
   );
 }

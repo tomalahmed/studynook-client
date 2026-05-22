@@ -2,6 +2,9 @@
 
 Next.js frontend for **StudyNook** — browse and book quiet study rooms, list your own space, and manage bookings. Authentication runs on this app (Better Auth + MongoDB); rooms and bookings are served by a separate Express API.
 
+**Live URL:** [https://studynook-client-seven.vercel.app/](https://studynook-client-seven.vercel.app/)
+
+
 ## Features
 
 - **Public** — home, room browse/search, about
@@ -112,8 +115,4 @@ Room/booking requests from the browser go to `/api/rooms/*` and `/api/bookings/*
 
 ## License
 
-<<<<<<< HEAD
-Private — assignment project (`private: true` in `package.json`).
-=======
 Private — project (`private: true` in `package.json`).
->>>>>>> 2c61d820505892934e6d4922d9f86405db8a374e

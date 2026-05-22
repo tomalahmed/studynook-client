@@ -1,12 +1,17 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Calendar, Heart, Sparkles } from "lucide-react";
 import toast from "react-hot-toast";
 import { bookingsApi } from "@/lib/api";
 import { HOUR_OPTIONS } from "@/lib/roomConstants";
+import {
+  FAVORITES_CHANGED_EVENT,
+  isFavorite,
+  toggleFavorite,
+} from "@/lib/favorites";
 import { loginUrl, roomDetails } from "@/lib/routes";
 
 const BOOKING_FEE = 0.5;
@@ -30,6 +35,21 @@ export default function RoomBookingSidebar({
   const [endHour, setEndHour] = useState(11);
   const [submitting, setSubmitting] = useState(false);
   const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    setSaved(isFavorite(room.id));
+
+    function syncSaved() {
+      setSaved(isFavorite(room.id));
+    }
+
+    window.addEventListener(FAVORITES_CHANGED_EVENT, syncSaved);
+    window.addEventListener("storage", syncSaved);
+    return () => {
+      window.removeEventListener(FAVORITES_CHANGED_EVENT, syncSaved);
+      window.removeEventListener("storage", syncSaved);
+    };
+  }, [room.id]);
 
   const hourlyRate = Number(room.hourlyRate) || 0;
   const endOptions = HOUR_OPTIONS.filter((h) => h > startHour && h <= 21);
@@ -71,18 +91,15 @@ export default function RoomBookingSidebar({
     }
   };
 
-  const handleSaveFavorite = () => {
+  const handleToggleFavorite = () => {
     try {
-      const key = "studynook-favorites";
-      const raw = localStorage.getItem(key);
-      const ids = raw ? JSON.parse(raw) : [];
-      if (!ids.includes(room.id)) {
-        localStorage.setItem(key, JSON.stringify([...ids, room.id]));
-      }
-      setSaved(true);
-      toast.success("Saved to favorites");
+      const nowSaved = toggleFavorite(room.id);
+      setSaved(nowSaved);
+      toast.success(
+        nowSaved ? "Saved to favorites" : "Removed from favorites",
+      );
     } catch {
-      toast.error("Could not save to favorites.");
+      toast.error("Could not update favorites.");
     }
   };
 
@@ -191,14 +208,20 @@ export default function RoomBookingSidebar({
 
         <button
           type="button"
-          onClick={handleSaveFavorite}
-          className="mb-6 flex w-full items-center justify-center gap-2 rounded-full border-2 border-secondary py-3 text-sm font-bold text-secondary transition-colors hover:bg-secondary-container"
+          onClick={handleToggleFavorite}
+          aria-pressed={saved}
+          className={`mb-6 flex w-full items-center justify-center gap-2 rounded-full border-2 py-3 text-sm font-bold transition-colors ${
+            saved
+              ? "border-secondary bg-secondary-container text-secondary"
+              : "border-secondary text-secondary hover:bg-secondary-container"
+          }`}
         >
           <Heart
             className={`h-4 w-4 ${saved ? "fill-secondary" : ""}`}
             strokeWidth={2.5}
+            aria-hidden
           />
-          {saved ? "Saved" : "Save to Favorites"}
+          {saved ? "Remove from Favorites" : "Save to Favorites"}
         </button>
 
         <div className="space-y-2 border-t border-outline-variant/40 pt-4 text-sm">

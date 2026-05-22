@@ -98,6 +98,7 @@ export default function ProfileMenu({ user, onNavigate, variant = "dropdown" }) 
   const menuLinks = [
     { href: ROUTES.myListings, label: "My Listings" },
     { href: ROUTES.myBookings, label: "My Bookings" },
+    { href: ROUTES.myFavorites, label: "My Favorites" },
   ];
 
   if (variant === "inline") {
