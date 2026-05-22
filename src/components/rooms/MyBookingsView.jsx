@@ -17,11 +17,9 @@ import { bookingsApi } from "@/lib/api";
 import { isRemoteImage, resolveRoomImage } from "@/lib/images";
 import PageLoader from "@/components/ui/PageLoader";
 import { FadeIn, FadeInItem, FadeInStagger } from "@/components/ui/FadeIn";
+import { formatHour } from "@/lib/formatHour";
+import { useDialogA11y } from "@/hooks/useDialogA11y";
 import { roomDetails, ROUTES } from "@/lib/routes";
-
-function formatHour(h) {
-  return `${String(h).padStart(2, "0")}:00`;
-}
 
 function formatDate(dateStr) {
   return new Date(dateStr).toLocaleDateString(undefined, {
@@ -168,7 +166,13 @@ function BookingCard({ booking, onCancel }) {
   );
 }
 
-function CancelModal({ onClose, onConfirm }) {
+function CancelModal({ open, onClose, onConfirm }) {
+  const { panelRef, titleId } = useDialogA11y(open, onClose);
+
+  if (!open) {
+    return null;
+  }
+
   return (
     <motion.div
       className="fixed inset-0 z-50 flex items-end justify-center bg-[#2e1a28]/45 p-4 backdrop-blur-sm sm:items-center"
@@ -178,9 +182,10 @@ function CancelModal({ onClose, onConfirm }) {
       onClick={onClose}
     >
       <motion.div
+        ref={panelRef}
         role="dialog"
         aria-modal="true"
-        aria-labelledby="cancel-title"
+        aria-labelledby={titleId}
         className="w-full max-w-md rounded-2xl bg-white p-6 candy-shadow-secondary sm:rounded-3xl"
         initial={{ opacity: 0, y: 24, scale: 0.96 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -188,7 +193,7 @@ function CancelModal({ onClose, onConfirm }) {
         transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
         onClick={(e) => e.stopPropagation()}
       >
-        <h3 id="cancel-title" className="text-xl font-black text-on-surface">
+        <h3 id={titleId} className="text-xl font-black text-on-surface">
           Cancel this booking?
         </h3>
         <p className="mt-2 text-sm text-on-surface-variant">
@@ -353,6 +358,7 @@ export default function MyBookingsView() {
       <AnimatePresence>
         {cancelId ? (
           <CancelModal
+            open={Boolean(cancelId)}
             onClose={() => setCancelId(null)}
             onConfirm={() => handleCancel(cancelId)}
           />

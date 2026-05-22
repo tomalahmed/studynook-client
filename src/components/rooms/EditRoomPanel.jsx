@@ -3,24 +3,19 @@
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  AirVent,
   CircleCheckBig,
-  Coffee,
   DoorOpen,
   FileText,
   ImagePlus,
   LayoutGrid,
-  Monitor,
   Pencil,
-  Presentation,
   Upload,
-  Wifi,
   X,
-  Zap,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { roomsApi } from "@/lib/api";
 import { isRemoteImage, resolveRoomImage } from "@/lib/images";
+import { uploadRoomImage } from "@/lib/uploadRoomImage";
 import {
   AMENITY_ID_TO_API,
   apiAmenitiesToFormIds,
@@ -30,79 +25,15 @@ import {
   normalizeFloor,
   ROOM_TYPES,
 } from "@/lib/roomConstants";
+import {
+  AmenityOption,
+  RadioOption,
+  ROOM_FORM_AMENITIES,
+  ROOM_FORM_INPUT_CLASS_COMPACT,
+  SectionHeader,
+} from "@/components/rooms/room-form/roomFormPrimitives";
 
 const LIBRARY_BRANCH_OPTIONS = LIBRARY_BRANCHES.filter((b) => b.value);
-
-const FORM_AMENITIES = [
-  { id: "wifi", label: "Wi-Fi", icon: Wifi },
-  { id: "power", label: "Power", icon: Zap },
-  { id: "whiteboard", label: "Whiteboard", icon: Presentation },
-  { id: "monitor", label: "Monitor", icon: Monitor },
-  { id: "ac", label: "AC", icon: AirVent },
-  { id: "cafe", label: "Cafe Near", icon: Coffee },
-];
-
-const inputClass =
-  "w-full rounded-full border-none bg-surface-variant px-5 py-3 text-sm text-on-surface outline-none transition-all focus:ring-2 focus:ring-primary";
-
-function SectionHeader({ icon: Icon, title, className }) {
-  return (
-    <div className="mb-4 flex items-center gap-2">
-      <Icon className={`h-5 w-5 ${className}`} strokeWidth={2.25} aria-hidden />
-      <h3 className={`text-base font-bold ${className}`}>{title}</h3>
-    </div>
-  );
-}
-
-function RadioOption({ label, checked, onChange }) {
-  return (
-    <label className="group flex cursor-pointer items-center rounded-full bg-surface-variant p-3 transition-colors hover:bg-primary-container">
-      <input
-        type="radio"
-        checked={checked}
-        onChange={onChange}
-        className="sr-only"
-      />
-      <span
-        className={`mr-3 flex h-5 w-5 items-center justify-center rounded-full border-2 ${
-          checked
-            ? "border-primary bg-primary"
-            : "border-[#907898] bg-transparent"
-        }`}
-      >
-        {checked ? <span className="h-2 w-2 rounded-full bg-white" /> : null}
-      </span>
-      <span
-        className={`text-sm font-medium ${
-          checked ? "text-on-primary-container" : "text-on-surface"
-        }`}
-      >
-        {label}
-      </span>
-    </label>
-  );
-}
-
-function AmenityOption({ label, icon: Icon, checked, onToggle }) {
-  return (
-    <label
-      className={`flex cursor-pointer flex-col items-center justify-center rounded-xl p-3 transition-all ${
-        checked
-          ? "bg-[#c8eaff] text-tertiary"
-          : "bg-surface-variant text-on-surface-variant hover:bg-[#c8eaff]/60"
-      }`}
-    >
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={onToggle}
-        className="sr-only"
-      />
-      <Icon className="mb-1 h-5 w-5" strokeWidth={2} aria-hidden />
-      <span className="text-[10px] font-bold">{label}</span>
-    </label>
-  );
-}
 
 function initFormState(room) {
   const image = resolveRoomImage(room.image);
@@ -174,29 +105,11 @@ export default function EditRoomPanel({ room, open, onClose, onSaved }) {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith("image/")) {
-      toast.error("Please upload an image file.");
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("Image must be 5 MB or smaller.");
-      return;
-    }
-
     setUploadingImage(true);
-    const formData = new FormData();
-    formData.append("file", file);
 
     try {
-      const res = await fetch("/api/upload/room-image", {
-        method: "POST",
-        body: formData,
-        credentials: "include",
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || "Upload failed");
-
-      patch({ imageUrl: data.url, previewImage: data.url });
+      const url = await uploadRoomImage(file);
+      patch({ imageUrl: url, previewImage: url });
       toast.success("Image updated");
     } catch (err) {
       toast.error(err.message || "Could not upload image.");
@@ -304,6 +217,7 @@ export default function EditRoomPanel({ room, open, onClose, onSaved }) {
                     icon={DoorOpen}
                     title="Room identity"
                     className="text-secondary"
+                    size="compact"
                   />
                   <div className="space-y-4">
                     <div>
@@ -316,7 +230,7 @@ export default function EditRoomPanel({ room, open, onClose, onSaved }) {
                         value={form.roomName}
                         onChange={(e) => patch({ roomName: e.target.value })}
                         placeholder="e.g. The Pink Oasis"
-                        className={inputClass}
+                        className={ROOM_FORM_INPUT_CLASS_COMPACT}
                       />
                     </div>
                     <div>
@@ -327,7 +241,7 @@ export default function EditRoomPanel({ room, open, onClose, onSaved }) {
                         id="edit-libraryBranch"
                         value={form.libraryBranch}
                         onChange={(e) => patch({ libraryBranch: e.target.value })}
-                        className={`${inputClass} appearance-none`}
+                        className={`${ROOM_FORM_INPUT_CLASS_COMPACT} appearance-none`}
                       >
                         {LIBRARY_BRANCH_OPTIONS.map((branch) => (
                           <option key={branch.value} value={branch.value}>
@@ -348,7 +262,7 @@ export default function EditRoomPanel({ room, open, onClose, onSaved }) {
                           required
                           value={form.floor}
                           onChange={(e) => patch({ floor: e.target.value })}
-                          className={inputClass}
+                          className={ROOM_FORM_INPUT_CLASS_COMPACT}
                         />
                       </div>
                       <div>
@@ -362,7 +276,7 @@ export default function EditRoomPanel({ room, open, onClose, onSaved }) {
                           required
                           value={form.capacity}
                           onChange={(e) => patch({ capacity: e.target.value })}
-                          className={inputClass}
+                          className={ROOM_FORM_INPUT_CLASS_COMPACT}
                         />
                       </div>
                     </div>
@@ -374,6 +288,7 @@ export default function EditRoomPanel({ room, open, onClose, onSaved }) {
                     icon={LayoutGrid}
                     title="Vibe & value"
                     className="text-tertiary"
+                    size="compact"
                   />
                   <p className="mb-3 px-1 text-xs font-bold text-on-surface-variant">
                     Room type
@@ -382,7 +297,10 @@ export default function EditRoomPanel({ room, open, onClose, onSaved }) {
                     {ROOM_TYPES.map((type) => (
                       <RadioOption
                         key={type.id}
+                        name="editRoomType"
+                        value={type.id}
                         label={type.label}
+                        size="compact"
                         checked={form.roomType === type.id}
                         onChange={() => patch({ roomType: type.id })}
                       />
@@ -404,7 +322,7 @@ export default function EditRoomPanel({ room, open, onClose, onSaved }) {
                         required
                         value={form.pricePerHour}
                         onChange={(e) => patch({ pricePerHour: e.target.value })}
-                        className={`${inputClass} pl-9`}
+                        className={`${ROOM_FORM_INPUT_CLASS_COMPACT} pl-9`}
                       />
                     </div>
                   </div>
@@ -415,6 +333,7 @@ export default function EditRoomPanel({ room, open, onClose, onSaved }) {
                     icon={FileText}
                     title="Description"
                     className="text-primary"
+                    size="compact"
                   />
                   <textarea
                     rows={4}
@@ -430,6 +349,7 @@ export default function EditRoomPanel({ room, open, onClose, onSaved }) {
                     icon={ImagePlus}
                     title="Photo"
                     className="text-secondary"
+                    size="compact"
                   />
                   <label htmlFor="edit-imageUrl" className="mb-1.5 block px-1 text-xs font-bold text-on-surface-variant">
                     Image URL
@@ -449,7 +369,7 @@ export default function EditRoomPanel({ room, open, onClose, onSaved }) {
                       });
                     }}
                     placeholder="/images/uploads/… or https://…"
-                    className={`${inputClass} mb-3`}
+                    className={`${ROOM_FORM_INPUT_CLASS_COMPACT} mb-3`}
                   />
                   <input
                     ref={fileInputRef}
@@ -474,13 +394,15 @@ export default function EditRoomPanel({ room, open, onClose, onSaved }) {
                     icon={CircleCheckBig}
                     title="Amenities"
                     className="text-tertiary"
+                    size="compact"
                   />
                   <div className="grid grid-cols-3 gap-3">
-                    {FORM_AMENITIES.map((amenity) => (
+                    {ROOM_FORM_AMENITIES.map((amenity) => (
                       <AmenityOption
                         key={amenity.id}
                         label={amenity.label}
                         icon={amenity.icon}
+                        size="compact"
                         checked={form.amenities.includes(amenity.id)}
                         onToggle={() => toggleAmenity(amenity.id)}
                       />

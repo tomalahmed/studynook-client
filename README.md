@@ -112,4 +112,8 @@ Room/booking requests from the browser go to `/api/rooms/*` and `/api/bookings/*
 
 ## License
 
+<<<<<<< HEAD
+Private — assignment project (`private: true` in `package.json`).
+=======
 Private — project (`private: true` in `package.json`).
+>>>>>>> 2c61d820505892934e6d4922d9f86405db8a374e

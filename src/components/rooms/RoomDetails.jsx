@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useDialogA11y } from "@/hooks/useDialogA11y";
 import {
   ChevronRight,
   MapPin,
@@ -102,6 +103,15 @@ export default function RoomDetails({ room: initialRoom }) {
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  const closeDeleteDialog = () => {
+    if (!saving) {
+      setDeleteOpen(false);
+    }
+  };
+  const { panelRef: deletePanelRef, titleId: deleteTitleId } = useDialogA11y(
+    deleteOpen,
+    closeDeleteDialog,
+  );
 
   const isOwner =
     isAuthenticated && user?.id && room.owner?.id === String(user.id);
@@ -249,12 +259,18 @@ export default function RoomDetails({ room: initialRoom }) {
       {deleteOpen ? (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-[2px]"
-          role="alertdialog"
-          aria-modal="true"
-          aria-labelledby="delete-room-title"
+          role="presentation"
+          onClick={closeDeleteDialog}
         >
-          <div className="w-full max-w-md rounded-2xl bg-surface p-6 candy-shadow-secondary md:p-8">
-            <h3 id="delete-room-title" className="mb-2 text-xl font-black text-on-surface">
+          <div
+            ref={deletePanelRef}
+            className="w-full max-w-md rounded-2xl bg-surface p-6 candy-shadow-secondary md:p-8"
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby={deleteTitleId}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 id={deleteTitleId} className="mb-2 text-xl font-black text-on-surface">
               Delete listing?
             </h3>
             <p className="mb-6 text-sm leading-relaxed text-on-surface-variant">
@@ -265,7 +281,7 @@ export default function RoomDetails({ room: initialRoom }) {
             <div className="flex gap-3">
               <button
                 type="button"
-                onClick={() => setDeleteOpen(false)}
+                onClick={closeDeleteDialog}
                 disabled={saving}
                 className="flex-1 rounded-full border-2 border-[#dcc8e0] py-3 text-sm font-bold text-on-surface transition-colors hover:bg-surface-variant disabled:opacity-50"
               >

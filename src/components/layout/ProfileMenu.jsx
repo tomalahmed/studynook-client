@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, LogOut } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
@@ -50,6 +50,7 @@ function UserAvatar({ user, displayName, size = "md" }) {
 export default function ProfileMenu({ user, onNavigate, variant = "dropdown" }) {
   const router = useRouter();
   const menuRef = useRef(null);
+  const menuId = useId();
   const [isOpen, setIsOpen] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
 
@@ -66,8 +67,18 @@ export default function ProfileMenu({ user, onNavigate, variant = "dropdown" }) 
       }
     }
 
+    function handleEscape(event) {
+      if (event.key === "Escape") {
+        setIsOpen(false);
+      }
+    }
+
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
   }, [variant]);
 
   const handleLogout = async () => {
@@ -130,6 +141,7 @@ export default function ProfileMenu({ user, onNavigate, variant = "dropdown" }) 
         className="flex items-center gap-2 rounded-full border-2 border-[#dcc8e0] bg-white py-1.5 pr-3 pl-1.5 transition-all hover:border-primary hover:shadow-[0_4px_16px_rgba(224,64,160,0.15)]"
         aria-expanded={isOpen}
         aria-haspopup="menu"
+        aria-controls={menuId}
       >
         <UserAvatar user={user} displayName={displayName} size="sm" />
         <span className="hidden max-w-[120px] truncate text-sm font-bold text-on-surface md:inline">
@@ -138,12 +150,14 @@ export default function ProfileMenu({ user, onNavigate, variant = "dropdown" }) 
         <ChevronDown
           className={`h-4 w-4 shrink-0 text-on-surface-variant transition-transform ${isOpen ? "rotate-180" : ""}`}
           strokeWidth={2.5}
+          aria-hidden
         />
       </button>
 
       <AnimatePresence>
         {isOpen ? (
           <motion.div
+            id={menuId}
             role="menu"
             initial={{ opacity: 0, y: -6, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}

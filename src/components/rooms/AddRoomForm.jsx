@@ -14,99 +14,28 @@ import {
   ROOM_TYPES,
 } from "@/lib/roomConstants";
 import {
-  AirVent,
   CircleCheckBig,
-  Coffee,
   DoorOpen,
   FileText,
   ImagePlus,
   LayoutGrid,
-  Monitor,
-  Presentation,
   Rocket,
   Star,
   Upload,
-  Wifi,
-  Zap,
 } from "lucide-react";
 import toast from "react-hot-toast";
+import { uploadRoomImage } from "@/lib/uploadRoomImage";
+import {
+  AmenityOption,
+  RadioOption,
+  ROOM_FORM_AMENITIES,
+  ROOM_FORM_INPUT_CLASS,
+  SectionHeader,
+} from "@/components/rooms/room-form/roomFormPrimitives";
 
 const LIBRARY_BRANCH_OPTIONS = LIBRARY_BRANCHES.filter((b) => b.value);
 
-const AMENITIES = [
-  { id: "wifi", label: "Wi-Fi", icon: Wifi },
-  { id: "power", label: "Power", icon: Zap },
-  { id: "whiteboard", label: "Whiteboard", icon: Presentation },
-  { id: "monitor", label: "Monitor", icon: Monitor },
-  { id: "ac", label: "AC", icon: AirVent },
-  { id: "cafe", label: "Cafe Near", icon: Coffee },
-];
-
 const DEFAULT_PREVIEW_IMAGE = DEFAULT_ROOM_IMAGE;
-
-const inputClass =
-  "w-full rounded-full border-none bg-surface-variant px-6 py-3 text-on-surface outline-none transition-all focus:ring-2 focus:ring-primary";
-
-function SectionHeader({ icon: Icon, title, className }) {
-  return (
-    <div className="mb-2 flex items-center gap-3">
-      <Icon className={`h-6 w-6 ${className}`} strokeWidth={2.25} aria-hidden />
-      <h2 className={`text-xl font-bold ${className}`}>{title}</h2>
-    </div>
-  );
-}
-
-function RadioOption({ name, value, label, checked, onChange }) {
-  return (
-    <label className="group flex cursor-pointer items-center rounded-full bg-surface-variant p-3 transition-colors hover:bg-primary-container">
-      <input
-        type="radio"
-        name={name}
-        value={value}
-        checked={checked}
-        onChange={onChange}
-        className="sr-only"
-      />
-      <span
-        className={`mr-3 flex h-6 w-6 items-center justify-center rounded-full border-2 ${
-          checked
-            ? "border-primary bg-primary"
-            : "border-[#907898] bg-transparent"
-        }`}
-      >
-        {checked ? <span className="h-2 w-2 rounded-full bg-white" /> : null}
-      </span>
-      <span
-        className={`font-medium ${
-          checked ? "text-on-primary-container" : "text-on-surface"
-        }`}
-      >
-        {label}
-      </span>
-    </label>
-  );
-}
-
-function AmenityOption({ id, label, icon: Icon, checked, onToggle }) {
-  return (
-    <label
-      className={`flex cursor-pointer flex-col items-center justify-center rounded-xl p-4 transition-all ${
-        checked
-          ? "bg-[#c8eaff] text-tertiary"
-          : "bg-surface-variant text-on-surface-variant hover:bg-[#c8eaff]/60"
-      }`}
-    >
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={() => onToggle(id)}
-        className="sr-only"
-      />
-      <Icon className="mb-1 h-6 w-6" strokeWidth={2} aria-hidden />
-      <span className="text-xs font-bold">{label}</span>
-    </label>
-  );
-}
 
 export default function AddRoomForm() {
   const router = useRouter();
@@ -175,29 +104,17 @@ export default function AddRoomForm() {
     }
 
     setIsUploadingImage(true);
-    const formData = new FormData();
-    formData.append("file", file);
 
     try {
-      const res = await fetch("/api/upload/room-image", {
-        method: "POST",
-        body: formData,
-        credentials: "include",
-      });
-
-      const data = await res.json().catch(() => ({}));
-
-      if (!res.ok) {
-        throw new Error(data.error || "Upload failed");
-      }
+      const url = await uploadRoomImage(file);
 
       if (previewBlobRef.current) {
         URL.revokeObjectURL(previewBlobRef.current);
         previewBlobRef.current = null;
       }
 
-      setImageUrl(data.url);
-      setPreviewImage(data.url);
+      setImageUrl(url);
+      setPreviewImage(url);
       toast.success("Image uploaded");
     } catch (err) {
       toast.error(err.message || "Could not upload image.");
@@ -299,7 +216,7 @@ export default function AddRoomForm() {
                   value={roomName}
                   onChange={(e) => setRoomName(e.target.value)}
                   placeholder="e.g. The Pink Oasis"
-                  className={inputClass}
+                  className={ROOM_FORM_INPUT_CLASS}
                 />
               </div>
               <div>
@@ -314,7 +231,7 @@ export default function AddRoomForm() {
                   name="libraryBranch"
                   value={libraryBranch}
                   onChange={(e) => setLibraryBranch(e.target.value)}
-                  className={`${inputClass} appearance-none`}
+                  className={`${ROOM_FORM_INPUT_CLASS} appearance-none`}
                 >
                   {LIBRARY_BRANCH_OPTIONS.map((branch) => (
                     <option key={branch.value} value={branch.value}>
@@ -339,7 +256,7 @@ export default function AddRoomForm() {
                     value={floor}
                     onChange={(e) => setFloor(e.target.value)}
                     placeholder="2"
-                    className={inputClass}
+                    className={ROOM_FORM_INPUT_CLASS}
                   />
                 </div>
                 <div>
@@ -357,7 +274,7 @@ export default function AddRoomForm() {
                     value={capacity}
                     onChange={(e) => setCapacity(e.target.value)}
                     placeholder="4"
-                    className={inputClass}
+                    className={ROOM_FORM_INPUT_CLASS}
                   />
                 </div>
               </div>
@@ -408,7 +325,7 @@ export default function AddRoomForm() {
                     value={pricePerHour}
                     onChange={(e) => setPricePerHour(e.target.value)}
                     placeholder="5.00"
-                    className={`${inputClass} pl-10`}
+                    className={`${ROOM_FORM_INPUT_CLASS} pl-10`}
                   />
                 </div>
               </div>
@@ -463,7 +380,7 @@ export default function AddRoomForm() {
                   }
                 }}
                 placeholder="https://example.com/room.jpg or upload below"
-                className={inputClass}
+                className={ROOM_FORM_INPUT_CLASS}
               />
             </div>
             <input
@@ -501,12 +418,13 @@ export default function AddRoomForm() {
               className="text-tertiary"
             />
             <div className="grid grid-cols-3 gap-4">
-              {AMENITIES.map((amenity) => (
+              {ROOM_FORM_AMENITIES.map((amenity) => (
                 <AmenityOption
                   key={amenity.id}
-                  {...amenity}
+                  label={amenity.label}
+                  icon={amenity.icon}
                   checked={amenities.includes(amenity.id)}
-                  onToggle={toggleAmenity}
+                  onToggle={() => toggleAmenity(amenity.id)}
                 />
               ))}
             </div>
@@ -581,7 +499,7 @@ export default function AddRoomForm() {
                 Floor {floor || "2"}
               </span>
               {amenities.map((id) => {
-                const amenity = AMENITIES.find((item) => item.id === id);
+                const amenity = ROOM_FORM_AMENITIES.find((item) => item.id === id);
                 return amenity ? (
                   <span
                     key={id}

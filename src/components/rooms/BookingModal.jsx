@@ -3,11 +3,9 @@
 import { useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { bookingsApi } from "@/lib/api";
+import { formatHour } from "@/lib/formatHour";
 import { HOUR_OPTIONS } from "@/lib/roomConstants";
-
-function formatHour(h) {
-  return `${String(h).padStart(2, "0")}:00`;
-}
+import { useDialogA11y } from "@/hooks/useDialogA11y";
 
 export default function BookingModal({ room, open, onClose, onSuccess }) {
   const [date, setDate] = useState("");
@@ -15,6 +13,7 @@ export default function BookingModal({ room, open, onClose, onSuccess }) {
   const [endHour, setEndHour] = useState(10);
   const [note, setNote] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const { panelRef, titleId } = useDialogA11y(open, onClose);
 
   const endOptions = HOUR_OPTIONS.filter((h) => h > startHour && h <= 21);
 
@@ -57,12 +56,18 @@ export default function BookingModal({ room, open, onClose, onSuccess }) {
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="booking-title"
+      role="presentation"
+      onClick={onClose}
     >
-      <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl bg-white p-6 candy-shadow-secondary">
-        <h2 id="booking-title" className="mb-4 text-xl font-black text-on-surface">
+      <div
+        ref={panelRef}
+        className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl bg-white p-6 candy-shadow-secondary"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h2 id={titleId} className="mb-4 text-xl font-black text-on-surface">
           Book {room.name}
         </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
