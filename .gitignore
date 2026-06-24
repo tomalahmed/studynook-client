@@ -20,10 +20,6 @@
 # production
 /build
 
-# user-uploaded room images (keep folder via .gitkeep)
-/public/images/uploads/*
-!/public/images/uploads/.gitkeep
-
 # misc
 .DS_Store
 *.pem
@@ -36,6 +32,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.local.example
 
 # vercel
 .vercel

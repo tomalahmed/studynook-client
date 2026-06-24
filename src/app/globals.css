@@ -1,98 +1,37 @@
 @import "tailwindcss";
-@import "@heroui/styles";
 
 :root {
-  --background: #fef7ff;
-  --foreground: #2e1a28;
+  --bg: #0b0f14;
+  --surface: #121820;
+  --surface-elevated: #1a2230;
+  --accent: #22d3ee;
+  --accent-dim: #0891b2;
+  --text: #f1f5f9;
+  --muted: #94a3b8;
+  --border: #1e293b;
+  --background: var(--bg);
+  --foreground: var(--text);
 }
 
 @theme inline {
-  --color-background: #fef7ff;
-  --color-foreground: #2e1a28;
-  --color-primary: #e040a0;
-  --color-on-primary: #ffffff;
-  --color-surface: #fef7ff;
-  --color-on-surface: #2e1a28;
-  --color-on-surface-variant: #604868;
-  --color-on-background: #2e1a28;
-  --color-primary-fixed-dim: #f0a0cc;
-  --color-primary-container: #ffd6ee;
-  --color-on-primary-container: #600040;
-  --color-secondary: #7c52aa;
-  --color-secondary-container: #eedcff;
-  --color-on-secondary-container: #3d1a5c;
-  --color-tertiary: #0096cc;
-  --color-tertiary-container: #d6f4fc;
-  --color-on-tertiary-container: #00334d;
-  --color-surface-variant: #f2e8f2;
-  --font-sans: var(--font-dm-sans), "DM Sans", sans-serif;
-  --font-body: var(--font-dm-sans), "DM Sans", sans-serif;
-  --radius-lg: 2rem;
-  --radius-xl: 3rem;
-}
-
-html {
-  scroll-behavior: smooth;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-accent: var(--accent);
+  --font-sans: var(--font-dm-sans);
+  --font-display: var(--font-syne);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-dm-sans), system-ui, sans-serif;
 }
 
-.candy-shadow-primary {
-  box-shadow: 0 8px 24px rgba(224, 64, 160, 0.2);
+.font-display {
+  font-family: var(--font-syne), system-ui, sans-serif;
 }
 
-.candy-shadow-secondary {
-  box-shadow: 0 8px 24px rgba(124, 82, 170, 0.2);
-}
-
-.candy-shadow-tertiary {
-  box-shadow: 0 8px 24px rgba(0, 150, 204, 0.2);
-}
-
-@keyframes float-notfound {
-  0% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-20px);
-  }
-  100% {
-    transform: translateY(0);
-  }
-}
-
-.animate-float-notfound {
-  animation: float-notfound 6s ease-in-out infinite;
-}
-
-.text-outline {
-  color: #907898;
-}
-
-.bg-outline-variant {
-  background-color: #dcc8e0;
-}
-
-.bg-surface-container-low {
-  background-color: #fbf2fb;
-}
-
-.custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #e040a0;
-  border-radius: 10px;
+::selection {
+  background: color-mix(in srgb, var(--accent) 35%, transparent);
+  color: var(--text);
 }
