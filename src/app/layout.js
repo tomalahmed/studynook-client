@@ -1,39 +1,48 @@
-import { Syne, DM_Sans } from "next/font/google";
-import Navbar from "@/components/shared/Navbar";
-import Footer from "@/components/shared/Footer";
-import Providers from "@/components/providers/Providers";
+import { Geist, Geist_Mono } from "next/font/google";
+import SessionTokenSync from "@/components/auth/SessionTokenSync";
+import ToasterProvider from "@/components/providers/ToasterProvider";
+import { getMetadataBase, SITE_NAME } from "@/lib/site";
 import "./globals.css";
 
-const syne = Syne({
-  variable: "--font-syne",
+const geistSans = Geist({
+  variable: "--font-geist-sans",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
 });
 
-const dmSans = DM_Sans({
-  variable: "--font-dm-sans",
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata = {
-  title: "PromptForge — AI Prompt Marketplace",
+  metadataBase: getMetadataBase(),
+  title: {
+    default: SITE_NAME,
+    template: "%s",
+  },
   description:
-    "Discover, share, and master AI prompts for ChatGPT, Claude, Gemini, and more.",
+    "Browse and book quiet, private study rooms in your library. List your own room and earn.",
+  openGraph: {
+    siteName: SITE_NAME,
+    type: "website",
+    locale: "en_US",
+    title: SITE_NAME,
+    description:
+      "Browse and book quiet, private study rooms in your library.",
+    images: [{ url: "/images/Banner.png", width: 800, height: 800, alt: SITE_NAME }],
+  },
 };
 
 export default function RootLayout({ children }) {
   return (
     <html
       lang="en"
-      className={`${syne.variable} ${dmSans.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col bg-[var(--bg)] text-[var(--text)]">
-        <Providers>
-          <Navbar />
-          <main className="flex-1">{children}</main>
-          <Footer />
-        </Providers>
+      <body className="min-h-full flex flex-col">
+        <SessionTokenSync />
+        {children}
+        <ToasterProvider />
       </body>
     </html>
   );
